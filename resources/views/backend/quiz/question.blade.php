@@ -11,7 +11,10 @@
         <div class="module">
         <div class="module-head">
 
-        <h3>{{$quiz->name}}</h3>
+        <h3>
+            {{$quiz->name}}
+            
+        </h3>
         </div>
 
         <div class="module-body">
@@ -24,16 +27,42 @@
 
         <table class="table table-message">
         <tbody>
-
+        <span style='float:right'><a href="{{route('question.edit',[$ques->id])}}" class="btn btn-info btn-sm">Edit Question</a></span>
         <tr class="read">
         
-        {{$ques->question}}
+        {!!$ques->question!!}
+        
+        
 
         <td class="cell-autho hidden-phone hidden-tablet">
+        @if(!empty($ques->mfile_ext))
+                        <?php 
+                            
+                            list($txt,$ext)=explode(".", $ques->mfile_ext);
+                            $ext=strtolower($ext);
+                            
+                        ?>
+                        @if($ext=="jpg" || $txt=="jpeg")
+                        <p><img src='{{ asset($ques->mfile_ext) }}' style='width:250px;height:200px'></p>
+                        @elseif($ext=="mp3" || $ext=="mp4")
+                        <p>
+                            <video width="250" height="200" controls>
+                                @if($ext=="mp3")
+                                    <source src="{{ asset($ques->mfile_ext) }}" type="video/mp3">
+                                @else 
+                                    <source src="{{ asset($ques->mfile_ext) }}" type="video/mp4">
+                                @endif
+                            </video>
+                        </p>
+                        
+                        @elseif($ext=="pdf")
+                        <p>{{ asset($ques->mfile_ext) }}</p>
+                        @endif
+                    @endif
 
         @foreach($ques->answers as $answer)
         <p>
-        {{$answer->answer}}
+        {!!$answer->answer!!}
        @if($answer->is_correct)
         <span class="badge badge-success">
         correct answer

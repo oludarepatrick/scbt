@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Middleware;
-
 use Closure;
 use Auth;
 use App\Mmodels\User;
@@ -22,5 +21,7 @@ class isAdmin
         return $next($request);
         }
         return redirect('/login');
+        
+        //return redirect()->intended('https://schooldrive.com.ng/educareprimary');
     }
 }

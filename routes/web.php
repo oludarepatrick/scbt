@@ -26,10 +26,16 @@ use App\Http\Controllers\ExamController;
 
 
 Auth::routes([
-    'register'=>false,
+    'register'=>true,
     'reset'=>false,
     'verify'=>false
 ]);
+
+
+Route::get('/cbt-logout', [App\Http\Controllers\LogoutController::class, 'perform'])->name('cbtLogout');
+
+
+Route::get('/checkpoint/{id}', [App\Http\Controllers\JointController::class, 'checker'])->name('checkpoint/id');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/mycom', [App\Http\Controllers\ExamController::class, 'compo'])->name('mycom');
@@ -41,6 +47,7 @@ Route::get('/result/user/{userId}/quiz/{quizId}','App\Http\Controllers\ExamContr
 Route::group(['middleware'=>'isAdmin'],function(){
     Route::get('/', function () {
         return view('admin.index');
+        //Route::get('/adminHome', [App\Http\Controllers\HomeController::class, 'adminPage'])->name('adminHome');
     });
     Route::resource('/quiz', QuizController::class);
     Route::resource('/question', QuestionController::class);
@@ -48,14 +55,32 @@ Route::group(['middleware'=>'isAdmin'],function(){
 
     Route::get('exam/assign', 'App\Http\Controllers\ExamController@create')->name('user.exam');
     Route::post('exam/assign', 'App\Http\Controllers\ExamController@assignExam')->name('exam.assign');
-    Route::get('exam/user', 'App\Http\Controllers\ExamController@userExam')->name('view.exam');
+    Route::get('exam/user', 'App\Http\Controllers\ExamController@userExam')->name('view.exam'); 
+    Route::post('cbt/result', 'App\Http\Controllers\ExamController@studResult')->name('display-result');
+    
     Route::post('exam/remove', 'App\Http\Controllers\ExamController@removeExam')->name('exam.remove');
 
 
     Route::get('/quiz/{id}/questions', 'App\Http\Controllers\QuizController@question')->name('quiz.question');
-    Route::get('result','App\Http\Controllers\ExamController@result');
+    Route::get('exam/displayresult','App\Http\Controllers\ExamController@result')->name('displayresult');
     Route::get('result/{userId}/{quizId}','App\Http\Controllers\ExamController@userQuizresult');
     Route::post('result', 'App\Http\Controllers\ExamController@removeExam')->name('result');
 
+    Route::post('exam/loadstud', [App\Http\Controllers\ExamController::class, 'showStudent'])->name('loadstud');
+    Route::post('exam/loadsquizes', [App\Http\Controllers\ExamController::class, 'loadQuizes'])->name('loadsquizes');
+    Route::post('quiz/loadsubjects', [App\Http\Controllers\QuizController::class, 'showSubjects'])->name('loadsubjects');
+    
+    
+    Route::post('cbt/loadstudresult', [App\Http\Controllers\ExamController::class, 'showResult'])->name('loadstudresult');
+    Route::post('exam/loadsquizes2', [App\Http\Controllers\ExamController::class, 'loadQuizes2'])->name('loadsquizes2');
+    
+    Route::get('exam/re-assign', [App\Http\Controllers\ExamController::class, 'reAssignForm'])->name('re-assign');
+    Route::post('exam/loadstudreasign', [App\Http\Controllers\ExamController::class, 'showStudForReassign'])->name('loadstudreasign');
+    Route::post('exam/re-assigning', [App\Http\Controllers\ExamController::class, 'saveReAssigning'])->name('re-assigning');
+    
+    
+    Route::post('question/loadquestion', [App\Http\Controllers\QuestionController::class, 'showQuestion'])->name('loadquestion');
+    
+    
 
    });

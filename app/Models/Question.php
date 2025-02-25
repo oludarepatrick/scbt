@@ -11,7 +11,7 @@ use App\Models\Question;
 class Question extends Model
 {
     use HasFactory;
-    protected $fillable = ['question_id','question','quiz_id'];
+    protected $fillable = ['question_id','question','quiz_id','mfile_ext'];
     private $limit = 5;
     private $order = 'DESC';
 
@@ -45,6 +45,7 @@ class Question extends Model
         $question = Question::find($id);
         $question->question = $data['question'];
         $question->quiz_id = $data['quiz'];
+        $question->mfile_ext = $data['mfile_ext'];
         $question->save();
         return $question;
     }

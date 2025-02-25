@@ -1,0 +1,5 @@
+[09-Aug-2024 03:12:42 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/app/Exceptions/Handler.php on line 9
+[09-Aug-2024 03:14:29 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/app/Exceptions/Handler.php on line 9
+[09-Aug-2024 03:15:09 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/app/Exceptions/Handler.php on line 9
+[09-Aug-2024 03:15:30 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/app/Exceptions/Handler.php on line 9
+[09-Aug-2024 03:15:48 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/app/Exceptions/Handler.php on line 9

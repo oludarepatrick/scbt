@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Quiz;
 use App\Models\Result;
+use App\Models\Classes;
 use DB;
 use Illuminate\Http\Request;
 
@@ -26,10 +27,18 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if(auth()->user()->is_admin==1){
-            return redirect('/');
+        
+        if(auth()->user()->is_admin==1)
+        {
+            $classes=Classes::all()->toArray();
+            //dd($classes);
+        
+            return view('admin.index');
+            exit();
+            //return redirect()->route('adminHome');
         }
-        $authUser = auth()->user()->id;
+        $authUser = auth()->user()->stud_id;
+        //dd($authUser);
         $assignedQuizId = [];
         $user = DB::table('quiz_user')->where('user_id', $authUser)->get();
         foreach($user as $u){
@@ -41,5 +50,13 @@ class HomeController extends Controller
 
 
         return view('home',compact('quizzes','wasQuizCompleted','isExamAssigned'));
+    }
+    
+    public function adminHome()
+    {
+        $classes=Classes::all()->toArray();
+        //dd($classes);
+        
+        return view('admin.index');
     }
 }

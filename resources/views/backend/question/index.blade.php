@@ -14,11 +14,11 @@
                         <h3>All Questions</h3>
                         </div>
                 <div class="module-body">
-                <table class="table table-stripped">
+                <table class="table table-stripped table-responsive" style="width:100%">
                     <thead>
                     <tr>
                     <th>#</th>
-                    <th>Question</th>
+                    <th style="width:10%; color:darkblue">Question</th>
                     <th>Quiz</th>
                     <th>Created at</th>
                     <th>View</th>
@@ -32,8 +32,34 @@
                     @foreach($questions as $key=>$question)
                     <tr>
                     <td>{{$key+1}}</td>
-                    <td>{{$question->question}}</td>
-                    <td>{{$question->quiz->name}}</td>
+                    <td style="width:300px" width="300px">{!!$question->question!!}</td>
+                    <td>{{$question->quiz->name}} <br/>
+                        @if(!empty($question->mfile_ext))
+                            <?php 
+                                
+                                list($txt,$ext)=explode(".", $question->mfile_ext);
+                                $ext=strtolower($ext);
+                                
+                            ?>
+                            
+                            @if($ext=="jpg" || $ext=="jpeg"  || $ext=="png")
+                            <p><img src='{{ asset($question->mfile_ext) }}' style='width:250px;height:200px'></p>
+                            @elseif($ext=="mp3" || $ext=="mp4")
+                            <p>
+                                <video width="250" height="2000" controls>
+                                    @if($ext=="mp3")
+                                        <source src="{{ asset($question->mfile_ext) }}" type="video/mp3">
+                                    @else 
+                                        <source src="{{ asset($question->mfile_ext) }}" type="video/mp4">
+                                    @endif
+                                </video>
+                            </p>
+                            
+                            @elseif($ext=="pdf")
+                            <p>{{ asset($question->mfile_ext) }}</p>
+                            @endif
+                        @endif
+                    </td>
                     <td>{{date('F y, Y',strtotime($question->created_at))}}</td>
                    
                     <td>

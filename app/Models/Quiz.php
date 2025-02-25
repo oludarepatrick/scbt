@@ -12,7 +12,8 @@ class Quiz extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','description','minutes'];
+    //protected $fillable = ['name','description','minutes'];
+    protected $fillable = ['name','description','minutes', 'class_id', 'arm', 'subject_id','status','sessions','terms'];
 
     public function questions(){
         return $this->hasMany(Question::class);
@@ -52,7 +53,7 @@ class Quiz extends Model
 
     public function hasQuizAttempted(){
         $attemptQuiz = [];
-        $authUser = auth()->user()->id;
+        $authUser = auth()->user()->stud_id;
         $user = Result::where('user_id',$authUser)->get();
         foreach($user as $u){
             array_push($attemptQuiz,$u->quiz_id);

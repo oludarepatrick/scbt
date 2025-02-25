@@ -21,6 +21,7 @@
                     <th>Name</th>
                     <th>Description</th>
                     <th>Minutes</th>
+                    <th>Status</th>
                     <th>Edit</tH>
                     <th>Delete</th>
                     <th></th>
@@ -35,12 +36,19 @@
                     <td>{{$quiz->description}}</td>
                     <td>{{$quiz->minutes}}</td>
                     <td>
-                        <a href="{{route('quiz.question',[$quiz->id])}}"><button class="btn btn-inverse">View Questions</button>
+                        @if($quiz->status==1) 
+                            <strong style='color:darkgreen'>Active</strong>
+                        @else
+                            <strong style='color:red'>In-Active</strong>
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{route('quiz.question',[$quiz->id])}}"><button class="btn btn-inverse btn-sm">View Questions</button>
                         </a>
                     </td>
                     <td>
                         <a href="{{route('quiz.edit',[$quiz->id])}}">
-                        <buttom class="btn btn-primary">Edit</buttom>
+                        <buttom class="btn btn-primary btn-sm">Edit</buttom>
                         </a>
                     </td>
                   
@@ -57,7 +65,7 @@
                         }
 
                         ">
-                        <input type="submit" value="Delete" class="btn btn-danger">
+                        <input type="submit" value="Delete" class="btn btn-danger btn-sm">
                         </a>
 
                         </td>

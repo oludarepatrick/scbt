@@ -14,8 +14,31 @@
                         <h3>All Question</h3>
                         </div>
                 <div class="module-body">
-                    <p><h3 class="heading">{{$question->question}}</h3></p>
-
+                    <p><h3 class="heading">{!!$question->question!!}</h3></p>
+                    @if(!empty($question->mfile_ext))
+                        <?php 
+                            
+                            list($txt,$ext)=explode(".", $question->mfile_ext);
+                            $ext=strtolower($ext);
+                            
+                        ?>
+                        @if($ext=="jpg" || $ext=="jpeg" || $ext=='png')
+                        <p><img src='{{ asset($question->mfile_ext) }}' style='width:250px;height:200px'></p>
+                        @elseif($ext=="mp3" || $ext=="mp4")
+                        <p>
+                            <video width="250" height="200" controls>
+                                @if($ext=="mp3")
+                                    <source src="{{ asset($question->mfile_ext) }}" type="video/mp3">
+                                @else 
+                                    <source src="{{ asset($question->mfile_ext) }}" type="video/mp4">
+                                @endif
+                            </video>
+                        </p>
+                        
+                        @elseif($ext=="pdf")
+                        <p>{{ asset($question->mfile_ext) }}</p>
+                        @endif
+                    @endif
                     <div class="module-body table">
                         <table class="table table-message">
                             <tbody>

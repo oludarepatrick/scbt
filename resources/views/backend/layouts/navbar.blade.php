@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Schooldrive</title>
+        <title>drive-CBT</title>
         <link type="text/css" href="{{asset('edmin/code/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
         <link type="text/css" href="{{asset('edmin/code/bootstrap/css/bootstrap-responsive.min.css')}}" rel="stylesheet">
         <link type="text/css" href="{{asset('edmin/code/css/theme.css')}}" rel="stylesheet">
@@ -17,7 +17,7 @@
             <div class="navbar-inner">
                 <div class="container">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-inverse-collapse">
-                        <i class="icon-reorder shaded"></i></a><a class="brand" href="index.html">drive-Quiz </a>
+                        <i class="icon-reorder shaded" ></i></a><a class="brand" href="#" >drive-CBT </a>
                     <div class="nav-collapse collapse navbar-inverse-collapse">
                         <ul class="nav nav-icons">
                             <li class="active"><a href="#"><i class="icon-envelope"></i></a></li>
@@ -39,9 +39,10 @@
                                 <ul class="dropdown-menu">
                                     <li><a href="#">Your Profile</a></li>
                                     <li><a href="#">Edit Profile</a></li>
-                                    <li><a href="#">Account Settings</a></li>
+                                    <li><a href="#">Account Settings </a></li>
                                     <li class="divider"></li>
-                                    <li><a class="dropdown-item" href="{{ route('logout') }}"
+                                    <li>
+                                    <!--<a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();"><i class="icon-inbox"></i>
                                         {{ __('Logout') }}
@@ -49,7 +50,10 @@
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
-                                    </form></li>
+                                    </form></li>-->
+                                    <a class="dropdown-item" href="{{ route('cbtLogout') }}">
+                                        {{ __('Logout') }}
+                                    </a>
                                 </ul>
                             </li>
                         </ul>

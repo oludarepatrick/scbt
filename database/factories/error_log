@@ -1,0 +1,5 @@
+[09-Aug-2024 03:12:01 UTC] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Factories\Factory' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/database/factories/UserFactory.php on line 9
+[09-Aug-2024 03:13:41 UTC] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Factories\Factory' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/database/factories/UserFactory.php on line 9
+[09-Aug-2024 03:14:40 UTC] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Factories\Factory' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/database/factories/UserFactory.php on line 9
+[09-Aug-2024 03:15:06 UTC] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Factories\Factory' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/database/factories/UserFactory.php on line 9
+[09-Aug-2024 03:15:26 UTC] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Factories\Factory' not found in /home/schooldr/public_html/cbt.schooldrive.com.ng/database/factories/UserFactory.php on line 9
