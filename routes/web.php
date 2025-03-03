@@ -6,6 +6,8 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\Auth\RegisterController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +62,9 @@ Route::group(['middleware'=>'isAdmin'],function(){
     
     Route::post('exam/remove', 'App\Http\Controllers\ExamController@removeExam')->name('exam.remove');
 
+    // Signup Routes
+    Route::get('/signup', [RegisterController::class, 'showRegistrationForm'])->name('signup.show');
+    Route::post('/signup', [RegisterController::class, 'register'])->name('register.save');
 
     Route::get('/quiz/{id}/questions', 'App\Http\Controllers\QuizController@question')->name('quiz.question');
     Route::get('exam/displayresult','App\Http\Controllers\ExamController@result')->name('displayresult');
