@@ -6,7 +6,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\SignupController;
 
 
 /*
@@ -28,7 +28,7 @@ use App\Http\Controllers\Auth\RegisterController;
 
 
 Auth::routes([
-    'register'=>true,
+    //'signup'=>true,
     'reset'=>false,
     'verify'=>false
 ]);
@@ -46,6 +46,12 @@ Route::get('user/quiz/{quizId}','App\Http\Controllers\ExamController@getQuizQues
 Route::post('quiz/create','App\Http\Controllers\ExamController@postQuiz')->middleware('auth');
 Route::get('/result/user/{userId}/quiz/{quizId}','App\Http\Controllers\ExamController@viewResult')->middleware('auth');
 
+
+// Signup Routes
+Route::get('/signup', [SignupController::class, 'showRegistrationForm'])->name('signup.show');
+Route::post('/signup', [SignupController::class, 'create'])->name('signup.save');
+
+
 Route::group(['middleware'=>'isAdmin'],function(){
     Route::get('/', function () {
         return view('admin.index');
@@ -62,10 +68,7 @@ Route::group(['middleware'=>'isAdmin'],function(){
     
     Route::post('exam/remove', 'App\Http\Controllers\ExamController@removeExam')->name('exam.remove');
 
-    // Signup Routes
-    Route::get('/signup', [RegisterController::class, 'showRegistrationForm'])->name('signup.show');
-    Route::post('/signup', [RegisterController::class, 'register'])->name('register.save');
-
+    
     Route::get('/quiz/{id}/questions', 'App\Http\Controllers\QuizController@question')->name('quiz.question');
     Route::get('exam/displayresult','App\Http\Controllers\ExamController@result')->name('displayresult');
     Route::get('result/{userId}/{quizId}','App\Http\Controllers\ExamController@userQuizresult');

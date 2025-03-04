@@ -1,33 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
+//use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Models\Student;
-use Illuminate\Foundation\Auth\RegistersUsers;
+//use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 
 
-class RegisterController extends Controller
+class SignupController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
-    //use RegistersUsers;
-
     /**
      * Where to redirect users after registration.
      *
@@ -76,13 +63,15 @@ class RegisterController extends Controller
      * @return \App\Models\User
      */
 
-     public function showRegistrationForm()
+    public function showRegistrationForm()
     {
-        return view('auth.register'); // Ensure you have this Blade file
+        //echo "hello";
+        return view('auth.signup_form'); // Ensure you have this Blade file
     }
     
-     protected function register(Request $request)
-     {
+    public function create(Request $request)
+    {
+        //dd($request);
          // Validate user input
          $validatedData = $request->validate([
              'firstname' => ['required', 'string', 'max:255'],
@@ -131,7 +120,7 @@ class RegisterController extends Controller
                  'payment_status' => 'PAID'
              ]);
          }
-     
+         
          return redirect()->route('login')->with('success', 'Registration successful. You can now log in.');
      }
 }
