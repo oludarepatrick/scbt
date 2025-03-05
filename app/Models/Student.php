@@ -10,12 +10,13 @@ class Student extends Model
     use HasFactory;
     
     protected $connection = 'mysql2';
-    protected $table ='students';
+    protected $table ='student';
     protected $fillable = [
         'student_id',
         'surname',
         'phone',
         'firstname',
+        'othername',
         'dob',
         'sex',
         'class',

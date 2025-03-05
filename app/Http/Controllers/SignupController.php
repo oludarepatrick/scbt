@@ -108,6 +108,7 @@ class SignupController extends Controller
                  'student_id' => $studentId,
                  'surname' => strtoupper($validatedData['lastname']),
                  'firstname' => strtoupper($validatedData['firstname']),
+                 'othername' => 'Null',
                  'phone' => $validatedData['phone'] ?? null,
                  'dob' => $validatedData['dob'] ?? null,
                  'sex' => $validatedData['sex'] ?? null,
