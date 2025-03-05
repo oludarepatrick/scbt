@@ -16,10 +16,12 @@ class LogoutController extends Controller
         
         if($userType=="Student")
         {
-            return redirect()->intended('https://grafton.schooldrive.com.ng/index.php/student/dashboard');
+            return redirect()->intended('http://34.74.15.13/login');
+            //return redirect()->intended('https://grafton.schooldrive.com.ng/index.php/student/dashboard');
         }
         else{
-            return redirect()->intended('https://grafton.schooldrive.com.ng/index.php/staff/dashboard');
+            return redirect()->intended('http://34.74.15.13/login');
+            //return redirect()->intended('https://grafton.schooldrive.com.ng/index.php/staff/dashboard');
         }
     }
 }
