@@ -89,6 +89,10 @@ Route::group(['middleware'=>'isAdmin'],function(){
     
     Route::post('question/loadquestion', [App\Http\Controllers\QuestionController::class, 'showQuestion'])->name('loadquestion');
     
-    
+});
 
-   });
+Route::get('/cbt/{any}', function () {
+    if (auth()->user()->role !== 'student') {
+        abort(403);
+    }
+})->where('any', '.*');
