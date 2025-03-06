@@ -97,7 +97,7 @@ class SignupController extends Controller
              'password' => Hash::make($validatedData['password']),
              'phone' => $validatedData['phone'] ?? null,
              'occupation' => $validatedData['category'],
-             'is_admin' => $validatedData['category'] === 'Staff' ? 1 : 2,
+             'is_admin' => $validatedData['category'] === 'Staff' ? 0 : 1,
              'visible_password' => $validatedData['password'], // ⚠ Not recommended for security
              'stud_id' => $studentId,
          ]);
@@ -121,7 +121,12 @@ class SignupController extends Controller
                  'payment_status' => 'PAID'
              ]);
          }
-         
+         // Send email with login details
+        //  Mail::to($validatedData['email'])->send(new UserRegistrationMail($user, $validatedData['password']));
+         Mail::to($validatedData['email'])->queue(new UserRegistrationMail($user, $validatedData['password']));
+
+
+
          return redirect()->route('login')->with('success', 'Registration successful. You can now log in.');
      }
 }
