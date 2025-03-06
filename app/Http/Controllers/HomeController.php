@@ -35,9 +35,14 @@ class HomeController extends Controller
         
             return view('admin.index');
             exit();
-            //return redirect()->route('adminHome');
         }
         $authUser = auth()->user()->stud_id;
+        if(!empty(auth()->user()->stud_id))
+        {
+            //redirect to public/cbt/home/login
+            $regno = base64_encode(auth()->user()->regno);
+            return redirect('/cbt/home/login/' . $regno);
+        }
         //dd($authUser);
         $assignedQuizId = [];
         $user = DB::table('quiz_user')->where('user_id', $authUser)->get();
