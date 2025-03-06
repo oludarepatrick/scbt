@@ -12,6 +12,8 @@ use App\Models\User;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    
+    protected $connection = 'mysql';
 
     /**
      * The attributes that are mass assignable.
