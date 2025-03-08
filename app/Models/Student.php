@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     use HasFactory;
-    
+
     protected $connection = 'mysql2';
     protected $table ='student';
     protected $fillable = [
@@ -22,10 +22,12 @@ class Student extends Model
         'class',
         'class_division',
         'session',
+        'state',
         'status',
         'username',
         'password',
-        'payment_status'];
+        'payment_status'
+    ];
 
     
 }

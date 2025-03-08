@@ -27,7 +27,11 @@ class Application
         $this->splitUrl();
 
         // check for controller: does such a controller exist ?
-        if (file_exists('./application/controller/' . $this->url_controller . '.php')) {
+        //if (file_exists('./application/controller/' . $this->url_controller . '.php')) {
+        $controllerPath = './application/controller/' . $this->url_controller . '.php';
+        if (file_exists($controllerPath)) 
+        {
+            //echo "Loading Controller: $controllerPath <br>";
 
             // if so, then load this file and create this controller
             // example: if controller would be "car", then this line would translate into: $this->car = new car();
@@ -57,9 +61,12 @@ class Application
             }
         } else {
             // invalid URL, so simply show home/index
+
+            //echo "In valid url ".$controllerPath; 
             require './application/controller/home.php';
             $home = new Home();
             $home->index();
+            
         }
     }
 
@@ -84,7 +91,7 @@ class Application
             $this->url_parameter_2 = (isset($url[3]) ? $url[3] : null);
             $this->url_parameter_3 = (isset($url[4]) ? $url[4] : null);
 
-            // for debugging. uncomment this if you have problems with the URL
+            //for debugging. uncomment this if you have problems with the URL
             // echo 'Controller: ' . $this->url_controller . '<br />';
             // echo 'Action: ' . $this->url_action . '<br />';
             // echo 'Parameter 1: ' . $this->url_parameter_1 . '<br />';

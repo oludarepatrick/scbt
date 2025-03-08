@@ -16,6 +16,16 @@ RewriteOptions inherit
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # ✅ Bypass Laravel for CBT routes
+    RewriteCond %{REQUEST_URI} ^/cbt/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^cbt/(.*)$ /cbt/$1 [L,QSA]
+
+    # Bypass Laravel for /cbt/ requests
+    # RewriteCond %{REQUEST_URI} ^/cbt/ [NC]
+    # RewriteRule .* - [L]
+
     # Handle Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
