@@ -92,7 +92,7 @@ Route::group(['middleware'=>'isAdmin'],function(){
 });
 
 Route::get('/cbt/{any}', function () {
-    if (auth()->user()->role !== 'student') {
+   /* if (auth()->user()->role !== 'student') {
         abort(403);
-    }
+    }*/
 })->where('any', '.*');

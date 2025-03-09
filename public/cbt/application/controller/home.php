@@ -4,7 +4,7 @@ class Home extends Controller
     public function index()
     {
         //require 'application/views/home/index.php';
-        header("location: https://grafton.schooldriveng.com/index.php/student/dashboard"); exit();
+        header("location: hhttp://127.0.0.1:8000"); exit();
     }
 
     public function login($reg="")
@@ -56,7 +56,7 @@ class Home extends Controller
         }
         else{
             //echo "<h1>Invalid Login</h1>";
-            header("location: https://grafton.schooldriveng.com/index.php/student/dashboard");
+            header("location: http://127.0.0.1:8000");
         }
     }
 

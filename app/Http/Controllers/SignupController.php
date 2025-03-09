@@ -123,7 +123,7 @@ class SignupController extends Controller
          }
          // Send email with login details
         //  Mail::to($validatedData['email'])->send(new UserRegistrationMail($user, $validatedData['password']));
-         Mail::to($validatedData['email'])->queue(new UserRegistrationMail($user, $validatedData['password']));
+         //Mail::to($validatedData['email'])->queue(new UserRegistrationMail($user, $validatedData['password']));
 
 
 

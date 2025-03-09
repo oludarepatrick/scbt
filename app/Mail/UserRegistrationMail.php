@@ -31,7 +31,7 @@ class UserRegistrationMail extends Mailable
         return $this->subject('Your Account Details')
                     ->view('emails.user_registration')
                     ->with([
-                        'name' => $this->user->name,
+                        'firstname' => $this->user->name,
                         'email' => $this->user->email,
                         'password' => $this->password,
                     ]);
