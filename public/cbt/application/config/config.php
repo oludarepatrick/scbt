@@ -18,9 +18,9 @@ ini_set("display_errors", 1);
  * Configuration for: Project URL
  * Put your URL here, for local development "127.0.0.1" or "localhost" (plus sub-folder) is fine
  */
-define('URL', 'http://127.0.0.1:8000/cbt/');
+define('URL', 'http://34.74.15.13/cbt/');
 
-define('qLink', 'http://127.0.0.1:8000/');
+define('qLink', 'http://34.74.15.13/')
 
 /**
  * Configuration for: Database
@@ -28,15 +28,16 @@ define('qLink', 'http://127.0.0.1:8000/');
  
 
  */
+
 define('DB_TYPE', 'mysql');
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'cbt1');
+define('DB_NAME', 'graftpcbt');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', 'SevCbt@2014');
 
 define('DB_TYPE_2', 'mysql');
 define('DB_HOST_2', '127.0.0.1');
-define('DB_NAME_2', 'cbt2');
+define('DB_NAME_2', 'gtpark');
 define('DB_USER_2', 'root');
-define('DB_PASS_2', '');
+define('DB_PASS_2', 'SevCbt@2014');
 
