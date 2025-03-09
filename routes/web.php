@@ -92,8 +92,10 @@ Route::group(['middleware'=>'isAdmin'],function(){
     
 });
 
+
 // Route::get('/cbt/{any}', function () {
 //     if (!auth()->user()->stud_id) {
 //         abort(403);
 //     }
 // })->where('any', '.*');
+
