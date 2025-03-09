@@ -39,9 +39,13 @@ class HomeController extends Controller
         $authUser = auth()->user()->stud_id;
         if(!empty(auth()->user()->stud_id))
         {
+            //dd(auth()->user());
             //redirect to public/cbt/home/login
-            $regno = base64_encode(auth()->user()->regno);
-            return redirect('/cbt/home/login/' . $regno);
+            $email = base64_encode(auth()->user()->email);
+            return redirect(url('/cbt/home/index?url=home/index/' . $email));
+            return redirect()->away(url('/cbt/home/index'));
+            //dd(url('cbt/home/index/'));
+            //return redirect()->away(env('APP_URL') . '/cbt/home/login/' . $email);
         }
         //dd($authUser);
         $assignedQuizId = [];

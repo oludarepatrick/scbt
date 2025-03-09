@@ -1,15 +1,21 @@
 <?php
 class Home extends Controller
 {
-    public function index()
-    {
-        //require 'application/views/home/index.php';
-        header("location: hhttp://127.0.0.1:8000"); exit();
+    public function __call($name, $arguments) {
+        echo "Method '$name' does not exist!";
+        exit();
     }
 
-    public function login($reg="")
+    public function login($email="")
     {
-        if(empty($reg) || !isset($reg))
+        echo "okay ".base64_decode($email);
+        //require 'application/views/home/index.php';
+        //header("location: ".qLink); exit();
+    }
+
+    public function index($email="")
+    {
+        if(empty($email) || !isset($email))
         {
             echo "<script type='text/javascript'>";
             echo "alert('Access Denied!');";
@@ -20,9 +26,9 @@ class Home extends Controller
             exit();
         }
         
-        $reg=base64_decode($reg);
+        $email=base64_decode($email);
         $login_model = $this->loadModel('LoginModel');
-        $logins = $login_model->login($reg);
+        $logins = $login_model->login($email);
         
       /*  if($logins->status !=0)
         {
@@ -38,12 +44,12 @@ class Home extends Controller
         $_SESSION['logged_id']=array();
         if(!empty($logins))
         {
-            $login_model->updateLogin(1,$reg);
+            $login_model->updateLogin(1,$email);
             
             $_SESSION['logged_id'] = array(
                 "userId"=>$logins->id,
                 "role"=>$logins->is_admin,
-                "email"=>$reg,
+                "email"=>$email,
                 "fullname"=>$logins->name,
                 "stud_id"=>$logins->stud_id,
                 "occupation"=>$logins->occupation,
@@ -52,11 +58,12 @@ class Home extends Controller
             );
             //echo $logins->stud_id;
             //echo $_SESSION['logged_id']['stud_id']; exit();
-            header("location: ".URL."dashboard/index");
+            //header("location: ".URL."dashboard/index");
+            header("location: ".URL."dashboard/index?url=dashboard/index/");
         }
         else{
             //echo "<h1>Invalid Login</h1>";
-            header("location: http://127.0.0.1:8000");
+            header("location: ".qLink);
         }
     }
 

@@ -2,6 +2,7 @@
 
 class SessionModel
 {
+    private $db;
     /**
      * Every model needs a database connection, passed to the model
      * @param object $db A PDO database connection
