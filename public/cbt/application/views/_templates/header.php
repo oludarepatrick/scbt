@@ -73,10 +73,10 @@
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li><a href="#"><span class="badge" style="color:#fff">Welcome <i class="icon-user icon-white"></i><?php echo $_SESSION['logged_id']['email'];?></span></a></li>
-                    <li class="dropdown"> <a class="dropdown-toggle"data-toggle="dropdown" href="javascript:;"><i class="icon-lock icon-white"></i> Logout <b class="caret"></b> </a>
+                    <li class="dropdown"> <a class="dropdown-toggle"data-toggle="dropdown" href="<?php echo URL?>logout/index?url=logout/index/"><i class="icon-lock icon-white"></i> Logout <b class="caret"></b> </a>
                         <ul class="dropdown-menu">
-                        <li><a href="<?= rtrim(URL, '/') ?>/logout"><i class="icon-ban-circle icon-white"></i> Logout</a></li>
-
+                            <li><a href="<?php echo URL?>logout/index?url=logout/index/"><i class="icon-ban-circle icon-white"></i>logout</a></li>
+                            
                         </ul>
                     </li>
                 </ul>
