@@ -13,14 +13,15 @@ class LogoutController extends Controller
         $userType=auth()->user()->occupation;
         Session::flush();
         Auth::logout();
+
         
         if($userType=="Student")
         {
-            return redirect()->intended('http://34.74.15.13/login');
+            return redirect()->intended('http://127.0.0.1/cbt/login');
             //return redirect()->intended('https://grafton.schooldrive.com.ng/index.php/student/dashboard');
         }
         else{
-            return redirect()->intended('http://34.74.15.13/login');
+            return redirect()->intended('http://127.0.0.1/login');
             //return redirect()->intended('https://grafton.schooldrive.com.ng/index.php/staff/dashboard');
         }
     }

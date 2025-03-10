@@ -18,9 +18,9 @@ ini_set("display_errors", 1);
  * Configuration for: Project URL
  * Put your URL here, for local development "127.0.0.1" or "localhost" (plus sub-folder) is fine
  */
-define('URL', 'https://grafton.schooldrive.com.ng/stud_dashboard/');
+define('URL', 'http://127.0.0.1:8000/cbt/');
 
-define('qLink', 'https://cbt.schooldriveng.com/');
+define('qLink', 'http://127.0.0.1:8000/');
 
 /**
  * Configuration for: Database
@@ -30,13 +30,13 @@ define('qLink', 'https://cbt.schooldriveng.com/');
  */
 define('DB_TYPE', 'mysql');
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'schooldr_gifton_cbt');
-define('DB_USER', 'schooldr_grafton_user');
-define('DB_PASS', 't[)OS!VW?GOa@#');
+define('DB_NAME', 'graftp_cbt');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 define('DB_TYPE_2', 'mysql');
 define('DB_HOST_2', '127.0.0.1');
-define('DB_NAME_2', 'schooldr_grafton');
-define('DB_USER_2', 'schooldr_grafton_user');
-define('DB_PASS_2', 't[)OS!VW?GOa@#');
+define('DB_NAME_2', 'gtpark');
+define('DB_USER_2', 'root');
+define('DB_PASS_2', '');
 

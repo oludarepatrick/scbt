@@ -97,7 +97,7 @@ class SignupController extends Controller
              'password' => Hash::make($validatedData['password']),
              'phone' => $validatedData['phone'] ?? null,
              'occupation' => $validatedData['category'],
-             'is_admin' => $validatedData['category'] === 'Staff' ? 0 : 1,
+             'is_admin' => $validatedData['category'] === 'Staff' ? 1 : 0,
              'visible_password' => $validatedData['password'], // ⚠ Not recommended for security
              'stud_id' => $studentId,
          ]);

@@ -90,17 +90,3 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::post('question/loadquestion', [App\Http\Controllers\QuestionController::class, 'showQuestion'])->name('loadquestion');
     
 });
-
-<<<<<<< HEAD
-Route::get('/cbt/{any}', function () {
-   /* if (auth()->user()->role !== 'student') {
-        abort(403);
-    }*/
-})->where('any', '.*');
-=======
-// Route::get('/cbt/{any}', function () {
-//     if (!auth()->user()->stud_id) {
-//         abort(403);
-//     }
-// })->where('any', '.*');
->>>>>>> 74fc2407b40985e4eac17d7bd41d6fceed2df495
