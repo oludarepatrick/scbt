@@ -146,6 +146,6 @@ class QuizController extends Controller
         //echo $classId;
         $data['subjects']=Subject::where('class', $classId)->get(['subject']);
         //var_dump($data['subjects']); exit();
-        return view('backend.quiz.display-subjects', $data);
+       return view('backend.quiz.display-subjects', $data);
     }
 }

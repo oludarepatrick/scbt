@@ -61,7 +61,7 @@
         //alert(a);
         var c =$(a).val();
         //alert(c);
-        $.post("<?php echo URL ?>dashboard/save",{c:c},function(data){
+        $.post("<?php echo URL ?>dashboard/save?url=dashboard/save",{c:c},function(data){
 
             $(a).attr('value',data);
 
@@ -73,7 +73,7 @@
 
 <script>
     $('.dbtn').click(function(){
-        var kk = '<?php echo URL ?>dashboard/questions/'+$(this).attr('href');
+        var kk = '<?php echo URL ?>dashboard/questions?url=dashboard/questions/'+$(this).attr('href');
         $('.val').load(kk); 
         //alert($(this).attr('href'));
         return false;

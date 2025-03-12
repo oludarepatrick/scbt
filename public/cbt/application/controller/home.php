@@ -6,23 +6,23 @@ class Home extends Controller
         exit();
     }
 
-    public function login($email="")
+    public function index()
     {
-        echo "okay ".base64_decode($email);
+        //echo "okay ".base64_decode($email);
         //require 'application/views/home/index.php';
-        //header("location: ".qLink); exit();
+        header("location: ".qLink."cbt-logout"); exit();
     }
 
-    public function index($email="")
+    public function login($email="")
     {
         if(empty($email) || !isset($email))
         {
             echo "<script type='text/javascript'>";
             echo "alert('Access Denied!');";
-            echo "window.location='".URL."home/index'";
+            echo "window.location='".URL."home/index?url=home/index'";
             echo "</script>";
 
-            echo "<h3>Access Denied! <a href='" . URL . "home/index'>click here to continue</a></h3>";
+            echo "<h3>Access Denied! <a href='" . URL . "home/index?url=home/index'>click here to continue</a></h3>";
             exit();
         }
         
