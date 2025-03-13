@@ -91,20 +91,12 @@ class SignupController extends Controller
          $studentId = mt_rand(100000, 999999);
      
          // Create user
-         $user = User::create([
-             'name' => strtoupper($validatedData['firstname'] . ' ' . $validatedData['lastname']),
-             'email' => $validatedData['email'],
-             'password' => Hash::make($validatedData['password']),
-             'phone' => $validatedData['phone'] ?? null,
-             'occupation' => $validatedData['category'],
-             'is_admin' => $validatedData['category'] === 'Staff' ? 1 : 0,
-             'visible_password' => $validatedData['password'], // ⚠ Not recommended for security
-             'stud_id' => $studentId,
-         ]);
+        
      
          // If user is a Student, store details in the students table
          if ($validatedData['category'] === 'Student') {
-             Student::create([
+
+            $add = Student::create([
                  'student_id' => $studentId,
                  'surname' => strtoupper($validatedData['lastname']),
                  'firstname' => strtoupper($validatedData['firstname']),
@@ -120,7 +112,20 @@ class SignupController extends Controller
                  'session' => $request->input('session'),
                  'payment_status' => 'PAID'
              ]);
+           // echo $studentId = $add->sn;
+           $studentId = isset($add->sn)? $add->sn:$add->id;
          }
+         $user = User::create([
+            'name' => strtoupper($validatedData['firstname'] . ' ' . $validatedData['lastname']),
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+            'phone' => $validatedData['phone'] ?? null,
+            'occupation' => $validatedData['category'],
+            'is_admin' => $validatedData['category'] === 'Staff' ? 1 : 0,
+            'visible_password' => $validatedData['password'], // ⚠ Not recommended for security
+            'stud_id' => $studentId,
+        ]);
+
          // Send email with login details
         //  Mail::to($validatedData['email'])->send(new UserRegistrationMail($user, $validatedData['password']));
          //Mail::to($validatedData['email'])->queue(new UserRegistrationMail($user, $validatedData['password']));

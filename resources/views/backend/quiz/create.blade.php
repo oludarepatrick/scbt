@@ -84,10 +84,10 @@
                         </span>
                         @enderror
                     </div>
-                    <span id="subjectId"></span>
+                    <span id=""></span>
                     <div class="mb-3">
                         <label class="form-label">Subject Title</label>
-                        <select name="subject_id" class="filter form-control @error('subject_id') is-invalid @enderror span6" >
+                        <select name="subject_id" id="subjectId" class="filter form-control @error('subject_id') is-invalid @enderror span6" >
                             <option value="">Select Subject</option>
                             
                         </select>

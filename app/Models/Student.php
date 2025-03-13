@@ -12,6 +12,7 @@ class Student extends Model
     protected $connection = 'mysql2';
     protected $table ='student';
     protected $fillable = [
+        'sn',
         'student_id',
         'surname',
         'phone',
