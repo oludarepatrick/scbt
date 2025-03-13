@@ -84,10 +84,10 @@
                         </span>
                         @enderror
                     </div>
-                    <span ></span>
+                    <span id="subjectId"></span>
                     <div class="mb-3">
                         <label class="form-label">Subject Title</label>
-                        <select name="subject_id" class="filter form-control @error('subject_id') is-invalid @enderror span6" id="subjectId">
+                        <select name="subject_id" class="filter form-control @error('subject_id') is-invalid @enderror span6" >
                             <option value="">Select Subject</option>
                             
                         </select>
@@ -115,8 +115,8 @@
     var customURL = "<?= asset('images/loader.gif'); ?>";
     function showSubjects(value)
     {
-        var classId=document.getElementById('classId').value;
-
+        var classId=document.getElementById('classId').value; 
+        //alert(classId);
         var see_resp = document.getElementById('subjectId');
         var req = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');  // XMLHttpRequest object
 
@@ -128,6 +128,7 @@
         req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
         req.send(data); //sends data
+    
         req.onreadystatechange = function()
         {
             if(req.readyState ==4 && req.status==200)

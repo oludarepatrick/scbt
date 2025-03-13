@@ -51,7 +51,7 @@
     $(document).ready(function(e){ //alert('ok');
         var dtel =$('.dte').val();
         $('.val').html('loading Questions...<img src="<?php echo URL ?>public/images/loader.gif" width="32" height="32">');
-        $('.val').load('<?php echo URL ?>dashboard/questions/'+dtel+'/1');
+        $('.val').load('<?php echo URL ?>dashboard/questions?url=dashboard/questions/'+dtel+'/1');
         
     });
 </script>
@@ -89,7 +89,7 @@
     {
         clearInterval(x);
         //document.getElementById("demo").innerHTML = "EXPIRED";
-        location.href = "<?php echo URL?>dashboard/finish/<?php echo $timerDetail->id; ?>";
+        location.href = "<?php echo URL?>dashboard/finish?url=dashboard/finish/<?php echo $timerDetail->id; ?>";
     }
     else{
         saveTime(<?php echo $timerDetail->id ?>);
@@ -116,7 +116,7 @@ function saveTime(id)
 			document.getElementById("report3nas1").innerHTML ="<img src='img/ajax-loader-8.gif'> <b>&nbsp;Please wait,Loading... </b>";
         }
 	}
-	xmlhttp.open("GET","<?php echo URL ?>dashboard/updateTimer/"+id,true);
+	xmlhttp.open("GET","<?php echo URL ?>dashboard/updateTimer?url=dashboard/updateTimer/"+id,true);
 	xmlhttp.send();    
 }	
 </script>

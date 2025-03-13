@@ -8,10 +8,10 @@ class dashboard extends Controller
         {
             echo "<script type='text/javascript'>";
             echo "alert('Access Denied!');";
-            echo "window.location='".URL."home/index'";
+            echo "window.location='".URL."home/index?url=home/index'";
             echo "</script>";
 
-            echo "<h3>Access Denied! <a href='" . URL . "home/index'>click here to continue</a></h3>";
+            echo "<h3>Access Denied! <a href='" . URL . "home/index?url=home/index'>click here to continue</a></h3>";
             exit();
         }
         $studId=$_SESSION['logged_id']['stud_id'];
@@ -26,7 +26,7 @@ class dashboard extends Controller
         
         $isExamAssigned = $quiz_model->isExamAssigned($studId,$active_term,$active_session);
         
-        //var_dump($quiz_model->getUU($studId));
+        //var_dump($isExamAssigned);
         $assignedQuiz=array();
         foreach($isExamAssigned as $val)
         {
@@ -88,22 +88,24 @@ class dashboard extends Controller
 
     public function start($details)
     {
+        
         if(empty($details))
         {
             echo "<script type='text/javascript'>";
             echo "alert('Access Denied!');";
-            echo "window.location='".URL."home/index'";
+            echo "window.location='".URL."home/index?url=home/index'";
             echo "</script>";
 
-            echo "<h3>Access Denied! <a href='" . URL . "home/index'>click here to continue</a></h3>";
+            echo "<h3>Access Denied! <a href='" . URL . "home/index?url=home/index'>click here to continue</a></h3>";
             exit();
         }
+        
         
         $didS=base64_decode($details);
         list($quizId,$studId,$remeningTime)=explode('-', $didS);
         if(empty($quizId) || empty($studId))
         {
-            echo "<h3>Access Denied! <a href='" . URL . "home/index'>click here to continue</a></h3>";
+            echo "<h3>Access Denied! <a href='" . URL . "home/index?url=home/index'>click here to continue</a></h3>";
             exit();
         }
         $quiz_model = $this->loadModel('QuizModel');
@@ -134,7 +136,7 @@ class dashboard extends Controller
             echo "window.location='".URL."home/index'";
             echo "</script>";
 
-            echo "<h3>Access Denied! <a href='" . URL . "home/index'>click here to continue</a></h3>";
+            echo "<h3>Access Denied! <a href='" . URL . "home/index?url=home/index'>click here to continue</a></h3>";
             exit();
         }
         
@@ -144,7 +146,7 @@ class dashboard extends Controller
         
         if(empty($quizId) || empty($studId))
         {
-            echo "<h3>Access Denied! <a href='" . URL . "home/index'>click here to continue</a></h3>";
+            echo "<h3>Access Denied3! <a href='" . URL . "home/index?url=home/index'>click here to continue</a></h3>";
             exit();
         }
         
@@ -206,6 +208,7 @@ class dashboard extends Controller
         $total=$quiz_model->getCount($quizId);
         require 'application/views/student/display_quiz.php';
         echo $this->pagination($val,$queId,$chkd,$total,$limit,$page);
+        //pagination($baseUrl,$quizId,$chkd,$que_total,$per_page=1,$page=1)
         
         //echo $questionCount.'--'.$atmCount;
         $ubmitBtn="";
@@ -336,7 +339,7 @@ class dashboard extends Controller
         $quiz_model = $this->loadModel('QuizModel');
         $quiz_model->updateTimer($timerId,0,1);
 
-        header("location: ".URL."dashboard/index");
+        header("location: ".URL."dashboard/index?url=dashboard/index");
     }
     
     public function submit($myTnId)

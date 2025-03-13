@@ -6,6 +6,7 @@
                 <!--Sidebar content-->
                 
                 <?php
+                    //var_dump($isExamAssigned);
                     echo "<h4 align='center'>".strtoupper($active_term)." ".$active_session." ACADEMIC SESSION</h4>";
                     if(!empty($isExamAssigned))
                     {
@@ -65,8 +66,10 @@
                                 else{
                                     //echo "<td colspan='2'><a href='#' class='btn btn-sm btn-danger' disabled>not available</a></td>";
                                     
-                                    echo "<td colspan='2'><a href='".URL."dashboard/start/".$qIdStdAtm."' class='btn btn-success btn-sm' >".$dsdCont."</a></td>";
+                                    echo "<td colspan='2'><a href='".URL."dashboard/start?url=dashboard/start/".$qIdStdAtm."' class='btn btn-success btn-sm' >".$dsdCont."</a></td>";
                                 }
+                                //dashboard/start?url=dashboard/start/
+                                ///cbt/home/index?url=home/index/
                                 
                             }
                             else{

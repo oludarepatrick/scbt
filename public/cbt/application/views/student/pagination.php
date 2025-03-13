@@ -5,7 +5,7 @@
  */
  function pagination($query,$per_page=5,$page=1,$brID)
  { 
-       $url = '?';
+       $url = '?'; 
     	$query = "SELECT COUNT(*) as `num` FROM  `login` AS a, branch AS b {$query} ";
 		$pdo = Database::connect();
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
