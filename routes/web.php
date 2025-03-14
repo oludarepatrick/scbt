@@ -91,11 +91,3 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::post('question/loadquestion', [App\Http\Controllers\QuestionController::class, 'showQuestion'])->name('loadquestion');
     
 });
-
-
-// Route::get('/cbt/{any}', function () {
-//     if (!auth()->user()->stud_id) {
-//         abort(403);
-//     }
-// })->where('any', '.*');
-

@@ -69,7 +69,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand active" href="#" id="bb" style="color:#fff">Schooldrive CBT</a>
+            <a class="brand active" href="#" id="bb" style="color:#fff">Schooldrives CBT</a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li><a href="#"><span class="badge" style="color:#fff">Welcome <i class="icon-user icon-white"></i><?php echo $_SESSION['logged_id']['email'];?></span></a></li>

@@ -13,6 +13,7 @@ class LogoutController extends Controller
         //$userType=auth()->user()->occupation;
         Session::flush();
         Auth::logout();
+
         
         //local
         return redirect()->intended('http://127.0.0.1:8000/login');
