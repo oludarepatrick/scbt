@@ -23,7 +23,7 @@
                 <!--Body content-->
                 <div   id="sidebar">
                     <div align="center">
-                        <img src="<?=$_SESSION['stud_pic']; ?>" class="img-circle" allt="student profile picture" style="width:120px; background-image: url(<?=URL?>public/img/photo.jpg)" />
+                    <img src="<?php echo isset($_SESSION['stud_pic'])?$_SESSION['stud_pic']:URL.'public/img/mas.png'; ?>" class="img-circle" allt="img" style="width:180px; height:180px; background-image: url(<?=URL?>public/img/mas.png)" />
                     </div>
                     <div style="font-family:Times New Roman; font-size:15px" class="slabel" align="center"><b><?php echo $_SESSION['logged_id']['fullname'];  ?></b></div>
                     <div style="font-family:Times New Roman;" class="slabel" align="center">(<?php echo $_SESSION['logged_id']['email'];  ?>)</div>

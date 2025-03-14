@@ -218,7 +218,7 @@ class dashboard extends Controller
         }
         if($questionCount==$atmCount || ($questionCount==($atmCount+1)  ) )
         {
-            $ubmitBtn="<a href='".URL."dashboard/submit/".$myTnId."' onClick='return confirm(\"Are you sure you want submit\");' class='btn btn-sm btn-info'>Finish and Submit</a>";
+            $ubmitBtn="<a href='".URL."dashboard/submit?url=dashboard/submit/".$myTnId."' onClick='return confirm(\"Are you sure you want submit\");' class='btn btn-sm btn-info'>Finish and Submit</a>";
         }
         echo "<div align='' style='margin-top:2px; color:brown'>
             <b>Student Atempt Question(s): ".$atmCount." out of ".$questionCount."</b>&nbsp;".$ubmitBtn."
@@ -353,7 +353,7 @@ class dashboard extends Controller
         //echo "<h1>".$timerDetail->status."</h1>";
         //if($staDD==1)
         //{
-            header("location: ".URL."dashboard/index");
+            header("location: ".URL."dashboard/index?url=dashboard/index");
         //}
     }
     
