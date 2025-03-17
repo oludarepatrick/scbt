@@ -27,6 +27,7 @@ class Student extends Model
         'status',
         'username',
         'password',
+        'visible_password',
         'payment_status'
     ];
 

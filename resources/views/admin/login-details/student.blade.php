@@ -40,7 +40,7 @@
                             <td>{{ $student->firstname }}</td>
                             <td>{{ $student->class }}</td>
                             <td>{{ $student->username }}</td>
-                            <td>{{ $student->password }}</td> <!-- Consider securing passwords -->
+                            <td>{{ $student->visible_password }}</td> <!-- Consider securing passwords -->
                         </tr>
                         @endforeach
                     </tbody>
