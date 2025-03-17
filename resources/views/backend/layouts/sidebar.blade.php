@@ -47,6 +47,17 @@
                                
                                
                             </ul>
+                            <ul class="widget widget-menu unstyled">
+                                <li>
+                                    <a href="#" class="nav-link" data-toggle="collapse" data-target="#loginDetailsDropdown" aria-expanded="false">
+                                        <i class="menu-icon icon-lock"></i> Login Details
+                                    </a>
+                                    <ul id="loginDetailsDropdown" class="collapse unstyled">
+                                        <li><a href="{{ route('admin.login-details.staff') }}"><i class="menu-icon icon-user"></i> Staff</a></li>
+                                        <li><a href="{{ route('admin.login-details.student') }}"><i class="menu-icon icon-user"></i> Student</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
                             <!--/.widget-nav-->
                             
                             
