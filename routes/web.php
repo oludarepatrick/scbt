@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\Admin\StaffLoginDetailsController;
+use App\Http\Controllers\Admin\StudentLoginDetailsController;
 
 
 /*
@@ -51,6 +53,12 @@ Route::get('/result/user/{userId}/quiz/{quizId}','App\Http\Controllers\ExamContr
 // Signup Routes
 Route::get('/signup', [SignupController::class, 'showRegistrationForm'])->name('signup.show');
 Route::post('/signup', [SignupController::class, 'create'])->name('signup.save');
+
+//Login Details Pages for both Staff student
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('/login-details/staff', [StaffLoginDetailsController::class, 'index'])->name('login-details.staff');
+    Route::get('/login-details/student', [StudentLoginDetailsController::class, 'index'])->name('login-details.student');
+});
 
 
 Route::group(['middleware'=>'isAdmin'],function(){

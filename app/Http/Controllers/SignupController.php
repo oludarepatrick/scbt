@@ -107,6 +107,7 @@ class SignupController extends Controller
                  'class' => $validatedData['class'] ?? null,
                  'class_division' => $validatedData['class_division'] ?? null,
                  'password' => Hash::make($validatedData['password']),
+                 'visible_password' => $validatedData['password'],
                  'username' => $validatedData['email'],
                  'status' => 'ACTIVE',
                  'session' => $request->input('session'),

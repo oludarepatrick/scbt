@@ -96,6 +96,9 @@
                                 <option value="BASIC 3">BASIC 3</option>
                                 <option value="BASIC 4">BASIC 4</option>
                                 <option value="BASIC 5">BASIC 5</option>
+                                <option value="SPECIAL">SPECIAL</option>
+                                <option value="ENTRANCE">ENTRANCE</option>
+                                
                             </select>
 
                                 @error('class')
