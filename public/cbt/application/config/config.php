@@ -30,13 +30,13 @@ define('qLink', 'http://127.0.0.1:8000/');
  */
 define('DB_TYPE', 'mysql');
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'graftp_cbt');
+define('DB_NAME', 'graftp_cbt'); //graftp_cbt
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
 define('DB_TYPE_2', 'mysql');
 define('DB_HOST_2', '127.0.0.1');
-define('DB_NAME_2', 'gtpark');
+define('DB_NAME_2', 'gtpark'); //gtpark
 define('DB_USER_2', 'root');
 define('DB_PASS_2', '');
 

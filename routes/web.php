@@ -68,7 +68,7 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::post('cbt/result', 'App\Http\Controllers\ExamController@studResult')->name('display-result');
     
     Route::post('exam/remove', 'App\Http\Controllers\ExamController@removeExam')->name('exam.remove');
-
+ 
     
     Route::get('/quiz/{id}/questions', 'App\Http\Controllers\QuizController@question')->name('quiz.question');
     Route::get('exam/displayresult','App\Http\Controllers\ExamController@result')->name('displayresult');
@@ -80,7 +80,7 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::post('quiz/loadsubjects', [App\Http\Controllers\QuizController::class, 'showSubjects'])->name('loadsubjects');
     
     
-    Route::post('cbt/loadstudresult', [App\Http\Controllers\ExamController::class, 'showResult'])->name('loadstudresult');
+    Route::post('loadstudresult', [App\Http\Controllers\ExamController::class, 'showResult'])->name('loadstudresult');
     Route::post('exam/loadsquizes2', [App\Http\Controllers\ExamController::class, 'loadQuizes2'])->name('loadsquizes2');
     
     Route::get('exam/re-assign', [App\Http\Controllers\ExamController::class, 'reAssignForm'])->name('re-assign');

@@ -48,7 +48,7 @@ return [
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'graftp_cbt'),
+            'database' => env('DB_DATABASE', 'graftp_cbt'), //graftp_cbt
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
@@ -68,7 +68,7 @@ return [
             'url' => env('DATABASE_URL'),
             'host' => env('DB2_HOST', '127.0.0.1'),
             'port' => env('DB2_PORT', '3306'),
-            'database' => env('DB2_DATABASE', 'gtpark'),
+            'database' => env('DB2_DATABASE', 'gtpark'), //gtpark
             'username' => env('DB2_USERNAME', 'root'),
             'password' => env('DB2_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
