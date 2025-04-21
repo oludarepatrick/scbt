@@ -86,8 +86,7 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::post('exam/loadstud', [App\Http\Controllers\ExamController::class, 'showStudent'])->name('loadstud');
     Route::post('exam/loadsquizes', [App\Http\Controllers\ExamController::class, 'loadQuizes'])->name('loadsquizes');
     Route::post('quiz/loadsubjects', [App\Http\Controllers\QuizController::class, 'showSubjects'])->name('loadsubjects');
-    
-    
+     
     Route::post('cbt/loadstudresult', [App\Http\Controllers\ExamController::class, 'showResult'])->name('loadstudresult');
     Route::post('exam/loadsquizes2', [App\Http\Controllers\ExamController::class, 'loadQuizes2'])->name('loadsquizes2');
     

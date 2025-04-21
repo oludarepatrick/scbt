@@ -11,7 +11,8 @@
                 <div class="alert alert-success">{{Session::get('message')}}</div>
             @endif
 
-            <form  method="POST" id="search" action="{{ route('loadstudresult') }}">@csrf;
+            <form  method="POST" id="search" action="{{ route('loadstudresult') }}">
+                @csrf
             
                 <div class="module">
                     <div class="module-head">

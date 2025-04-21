@@ -188,9 +188,6 @@ public function result(){
     $data['classes']=Classes::all();
     $data['arms']=ClassDivision::all();
     
-    
-
-
     return view('backend.exam.view-result', $data);
 }
 
