@@ -188,6 +188,9 @@ public function result(){
     $data['classes']=Classes::all();
     $data['arms']=ClassDivision::all();
     
+     
+
+
     return view('backend.exam.view-result', $data);
 }
 
@@ -373,10 +376,11 @@ public function userQuizResult($userId,$quizId){
     
     public function showResult(Request $request)
     {
+        //ini_set('display_errors', 1);
         $armId=$request->arm;
         $quizId=$request->quiz;
         $classname=$request->classname;
-        
+        //dd($request);
         $schlInf=SchoolInfo::get(['id','session','term'])->first();
         $activeSes=$schlInf->session;
         $activeTerm=$schlInf->term;
