@@ -40,7 +40,7 @@
                 
                     echo "<td align='center'>";
                         echo $std['userCorrectedAnswer']." Out of ".$std['totalQuestions']."<br>(".$std['percentage']." % )"; 
-                        echo "<br/><a href='https://grafton.schooldriveng.com/stud_dashboard/dashboard/viewResult/".$myViwer."' class='btn btn-info btn-mini btn-sm' target='_blank'>view details</a>";
+                        echo "<br/><a href='http://127.0.0.1:8000/stud_dashboard/dashboard/viewResult/".$myViwer."' class='btn btn-info btn-mini btn-sm' target='_blank'>view details</a>";
                     echo "</td>";
                 echo "</tr>";
                 

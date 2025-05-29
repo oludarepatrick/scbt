@@ -11,7 +11,8 @@ class Subject extends Model
     
     protected $connection = 'mysql2';
     protected $table ='staffsubj';
-    protected $fillable = ['id','class','subject'];
+    protected $fillable = ['id','class','subject', 'staff_id', 
+        'class_arm'];
 
     
 }

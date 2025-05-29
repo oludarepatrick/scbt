@@ -10,6 +10,7 @@ use App\Http\Controllers\SignupController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\Admin\StaffLoginDetailsController;
 use App\Http\Controllers\Admin\StudentLoginDetailsController;
+use App\Http\Controllers\StaffSubjectController;
 
 
 /*
@@ -97,5 +98,10 @@ Route::group(['middleware'=>'isAdmin'],function(){
     
     
     Route::post('question/loadquestion', [App\Http\Controllers\QuestionController::class, 'showQuestion'])->name('loadquestion');
+
+    Route::middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('/staff/subject/create', [StaffSubjectController::class, 'create'])->name('staffsubj.create');
+    Route::post('/staff/subject/store', [StaffSubjectController::class, 'store'])->name('staffsubj.store');
+    });
     
 });

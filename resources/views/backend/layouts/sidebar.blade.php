@@ -48,6 +48,13 @@
                                
                             </ul>
                             <ul class="widget widget-menu unstyled">
+                            <li>
+                                <a href="{{ route('staffsubj.create') }}">
+                                    <i class="menu-icon icon-book"></i> Add Subject
+                                </a>
+                            </li>
+                        </ul>
+                            <ul class="widget widget-menu unstyled">
                                 <li>
                                     <a href="#" class="nav-link" data-toggle="collapse" data-target="#loginDetailsDropdown" aria-expanded="false">
                                         <i class="menu-icon icon-lock"></i> Login Details
