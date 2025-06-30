@@ -1,2 +1,5 @@
-*
-!.gitignore
+# Ignore service account key file
+/storage/app/keys/cbtgemini.json
+
+# Ignore environment file
+.env

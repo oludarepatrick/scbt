@@ -100,8 +100,10 @@
                     <div style="" class="slabel" align="center"><b><?php echo $_SESSION['logged_id']['fullname'];  ?></b></div>
                     <div style="" class="slabel" align="center"><b>(<?php echo $_SESSION['logged_id']['email'];  ?>)</b></div>
                     
+                    
                     <br/>
                 </div>
+                
             </div>
         </div>
 

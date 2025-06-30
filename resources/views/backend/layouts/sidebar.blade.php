@@ -30,14 +30,42 @@
                             </ul>
 
                             <ul class="widget widget-menu unstyled">
+                                <li>
+                                    <a href="#" class="nav-link" data-toggle="collapse" data-target="#aiCbtDropdown" aria-expanded="false">
+                                        <i class="menu-icon icon-lightbulb"></i> AI CBT <i class="icon-chevron-down pull-right"></i>
+                                    </a>
+                                    <ul id="aiCbtDropdown" class="collapse unstyled">
+                                        <li>
+                                            <a href="{{ route('teacher.curriculum.upload.form') }}">
+                                                <i class="menu-icon icon-upload-alt"></i> Upload Curriculum
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('ai_questions.generate') }}">
+                                                <i class="menu-icon icon-lightbulb"></i> Generate AI Questions
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('ai_questions.generate_maths') }}">
+                                                <i class="menu-icon icon-lightbulb"></i> Generate Maths Questions
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('teacher.ai_questions') }}"><i class="icon-list"></i> AI Curriculum List</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('teacher.ai_questions_maths') }}"><i class="icon-list"></i> AI Maths Curriculum List</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                            <ul class="widget widget-menu unstyled">
                                 <li><a href="{{route('user.exam')}}"><i class="menu-icon icon-bullhorn"></i>Assign Exam </a>
                                 </li>
                                 <li>
                                     <a href="{{route('re-assign')}}"><i class="menu-icon icon-inbox"></i>Re-Assign Exam <b class="label green pull-right"></b></a>
                                 </li>
-                                <!--<li>
-                                    <a href="{{route('view.exam')}}"><i class="menu-icon icon-inbox"></i>View User <b class="label green pull-right"></b></a>
-                                </li>-->
                                
                             </ul>
 
@@ -73,15 +101,6 @@
                             <ul class="widget widget-menu unstyled">
                                 
                                 <li>
-                                    <!--<a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();"><i class="icon-inbox"></i>
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('cbtLogout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>-->
                                     <a class="dropdown-item" href="{{ route('cbtLogout') }}">
                                         {{ __('Logout') }}
                                     </a>

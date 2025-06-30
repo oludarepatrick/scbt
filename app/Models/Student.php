@@ -31,5 +31,9 @@ class Student extends Model
         'payment_status'
     ];
 
-    
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizUser::class, 'user_id');
+    }
+
 }

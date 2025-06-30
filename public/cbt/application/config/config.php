@@ -30,9 +30,9 @@ define('qLink', 'http://127.0.0.1:8000/');
  */
 define('DB_TYPE', 'mysql');
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'graftp_cbt'); //graftp_cbt
+define('DB_NAME', 'graftp_cbt'); //note that you need to change this to live server db before pushing
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', ''); //update the live server password or get rid of the config file before pushing
 
 define('DB_TYPE_2', 'mysql');
 define('DB_HOST_2', '127.0.0.1');

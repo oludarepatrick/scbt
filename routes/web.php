@@ -11,8 +11,15 @@ use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\Admin\StaffLoginDetailsController;
 use App\Http\Controllers\Admin\StudentLoginDetailsController;
 use App\Http\Controllers\StaffSubjectController;
-
-
+//New Ai CBT Controllers
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\CurriculumController;
+//use App\Http\Controllers\TeacherQuestionController;
+use App\Http\Controllers\AiQuestionController;
+//use App\Http\Controllers\TestSessionController;
+use App\Http\Controllers\StudentAnswerController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\AIStudentController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -103,5 +110,94 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::get('/staff/subject/create', [StaffSubjectController::class, 'create'])->name('staffsubj.create');
     Route::post('/staff/subject/store', [StaffSubjectController::class, 'store'])->name('staffsubj.store');
     });
+
+    // New Ai CBT routes fpr teachers
+    Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    // Curriculum management
+    Route::get('dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
+
+    // Curriculum Upload
+    Route::get('/curriculum/upload', [TeacherController::class, 'uploadCurriculumForm'])->name('teacher.curriculum.upload.form');
+    Route::post('/curriculum/upload', [TeacherController::class, 'uploadCurriculum'])->name('teacher.curriculum.upload');
+
+
+    Route::get('/questions/generate', [TeacherController::class, 'showQuestionGenerationForm'])->name('questions.generate.form');
+    Route::post('questions/generate', [TeacherController::class, 'generateAIQuestions'])->name('questions.generate');
+    Route::get('/questions/preview', [TeacherController::class, 'previewGeneratedQuestions'])->name('questions.preview');
+    Route::post('questions/save', [TeacherController::class, 'saveGeneratedQuestions'])->name('questions.save');
+
+  
+    Route::get('questions', [TeacherController::class, 'myQuestions'])->name('questions.index');
+    Route::get('questions/edit/{id}', [TeacherController::class, 'editQuestion'])->name('questions.edit');
+    Route::delete('questions/delete/{id}', [TeacherController::class, 'deleteQuestion'])->name('questions.delete');
+    Route::post('questions/update/{id}', [TeacherController::class, 'updateQuestion'])->name('questions.update');
+
+    Route::get('/teacher/ai-questions', [TeacherController::class, 'aiQuestionList'])->name('teacher.ai_questions');
+    Route::post('/teacher/ai-questions/{curriculum}/activate', [TeacherController::class, 'activateCurriculum'])->name('teacher.ai_questions.activate');
+    Route::get('/teacher/ai-questions/view/{curriculum_id}', [TeacherController::class, 'viewCurriculumQuestions'])->name('teacher.ai_questions.view');
+
+    //Maths Generated Questions
+    Route::get('/teacher/ai-questions-maths', [TeacherController::class, 'aiMathsQuestionList'])->name('teacher.ai_questions_maths');
+    Route::get('/teacher/ai-questions/view_maths/{curriculum_id}', [TeacherController::class, 'viewMathsCurriculumQuestions'])->name('teacher.ai_questions.view_maths');
+    Route::get('/questions/preview_maths', [TeacherController::class, 'previewMathsGeneratedQuestions'])->name('questions.preview_maths');
+
+   
+
+    // Generate & manage teacher-curated questions
+    Route::get('/questions/teacher', [TeacherController::class, 'dashboard'])->name('teacher_questions.dashboard');
+    //Route::get('/questions/teacher/create', [TeacherQuestionController::class, 'create'])->name('teacher_questions.create');
+    //Route::post('/questions/teacher', [TeacherQuestionController::class, 'store'])->name('teacher_questions.store');
+
+    // AI question generation from curriculum
+    Route::get('/questions/ai/generate', [AIQuestionController::class, 'showGenerateForm'])->name('ai_questions.generate');
+    Route::post('/questions/ai/generate', [AIQuestionController::class, 'generate'])->name('ai_questions.store');
+    Route::get('/questions/ai/preview/{curriculum_id}', [AIQuestionController::class, 'preview'])->name('ai.preview');
+    Route::post('/questions/ai/submit', [AIQuestionController::class, 'store'])->name('ai_questions.submit');
+    Route::get('/ai-questions', [AIQuestionController::class, 'index'])->name('ai_questions.index');
+    Route::delete('/questions/ai/{id}', [AIQuestionController::class, 'destroy'])->name('ai_questions.destroy');
+    Route::post('/questions/ai/{id}/update', [AIQuestionController::class, 'update'])->name('ai_questions.update');
+    //Generate Maths Question Route
+    Route::post('/questions/ai/generate_maths', [AIQuestionController::class, 'generateMaths'])->name('ai_questions.store_maths');
+    Route::get('/questions/ai/generate_maths', [AIQuestionController::class, 'showGenerateFormMaths'])->name('ai_questions.generate_maths');
+    Route::get('/questions/ai/preview_maths/{curriculum_id}', [AIQuestionController::class, 'preview_maths'])->name('ai.preview_maths');
+
+});
+
+    Route::prefix('cbt')->middleware(['auth'])->group(function () {
+    // Start test (AI or Teacher curated)
+   
+    // Submit answers
+    Route::post('/test/submit/{sessionId}', [StudentAnswerController::class, 'submit'])->name('test.submit');
+
+    // View past results
+
+});
     
+});
+
+Route::get('/student/quizzes', [StudentController::class, 'showAvailableQuizzes'])->name('student.quizzes');
+Route::get('/cbt/student/quiz/{curriculum}', [StudentController::class, 'takeQuiz'])->name('student.quiz.start');
+
+
+//Route::get('/openai-test', [AIQuestionController::class, 'testOpenAI']);
+
+//Route::get('/test-hf', [AIQuestionController::class, 'testOpenRouter']);
+
+//Route::get('/check-key', [AIQuestionController::class, 'checkApiKey']);
+
+//AI Exam Student Ends
+Route::get('/ai-login', [AIStudentController::class, 'showLogin'])->name('ai.login');
+Route::post('/ai-login', [AIStudentController::class, 'login'])->name('ai.login.submit');
+
+Route::middleware(['auth'])->prefix('ai')->group(function () {
+    Route::get('/dashboard', [AIStudentController::class, 'dashboard'])->name('ai.dashboard');
+    Route::get('/quizzes', [AIStudentController::class, 'showAvailableQuizzes'])->name('ai.quizzes');
+    Route::get('/quiz/{id}/start', [AIStudentController::class, 'start'])->name('ai.quiz.start');
+    Route::get('/quiz/{id}/result', [AIStudentController::class, 'viewResult'])->name('ai.quiz.result');
+    Route::post('/ai/quiz/{quizUser}/submit', [AIStudentController::class, 'submit'])->name('quiz.submit');
+    Route::get('/ai/quiz/{quizUser}/finish', [AIStudentController::class, 'finish'])->name('quiz.finish');
+    Route::post('/ai/quiz/{quizUserId}/next', [AIStudentController::class, 'nextAjax'])->name('quiz.next');
+    Route::post('/ai/quiz/save-time/{id}', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
+    Route::get('/ai/quiz/{quiz}/result', [AIStudentController::class, 'result'])->name('quiz.result');
+    Route::get('/quiz/{quizId}/result/pdf', [AIStudentController::class, 'exportResultPdf'])->name('quiz.result.pdf');
 });

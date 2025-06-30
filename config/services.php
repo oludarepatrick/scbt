@@ -14,6 +14,17 @@ return [
     |
     */
 
+    'gemini' => [
+    'api_key' => env('GEMINI_API_KEY'),
+    ],
+
+    'google' => [
+        'credentials_path' => storage_path('app/keys/cbtgeminikey.json'),
+        'project_id' => env('GOOGLE_PROJECT_ID'),
+        'location' => env('GOOGLE_LOCATION', 'us-central1'),
+        // You can add other Google-related config here in the future
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

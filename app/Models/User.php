@@ -88,4 +88,10 @@ class User extends Authenticatable
     public function deleteUser($id){
         return User::find($id)->delete();
     }
+
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizUser::class, 'user_id');
+    }
+
 }
