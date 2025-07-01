@@ -15,7 +15,7 @@ use App\Models\Curriculum;
 use App\Models\AIQuestion;
 //use Google\Cloud\Storage\StorageClient;
 
-class AIQuestionController extends Controller
+class AiQuestionController extends Controller
 {
     public function showGenerateForm()
     {

@@ -12,7 +12,7 @@ use App\Models\AIQuestion;
 use App\Models\StudentAnswer;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class AiStudentController extends Controller
+class AIStudentController extends Controller
 {
     public function showLogin()
     {
