@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AiQuestion extends Model
+class AIQuestion extends Model
 {
+    protected $table = 'ai_questions';
     use HasFactory;
 
     protected $casts = [
@@ -19,6 +20,7 @@ class AiQuestion extends Model
     'class',
     'subject',
     'source',
+    'duration',
     'question',
     'option_a',
     'option_b',

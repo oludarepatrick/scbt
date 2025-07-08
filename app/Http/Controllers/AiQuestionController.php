@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 use Illuminate\Support\Facades\Http;
-
-
 use App\Models\Curriculum;
 use App\Models\AIQuestion;
 //use Google\Cloud\Storage\StorageClient;

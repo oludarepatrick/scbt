@@ -17,6 +17,8 @@ ini_set("display_errors", 1);
 /**
  * Configuration for: Project URL
  * Put your URL here, for local development "127.0.0.1" or "localhost" (plus sub-folder) is fine
+ * *define('URL', 'http://35.185.65.46/cbt/'); use this for  live server settings
+*define('qLink', 'http://35.185.65.46/');use this for live server setting
  */
 define('URL', 'http://127.0.0.1:8000/cbt/');
 
@@ -30,7 +32,7 @@ define('qLink', 'http://127.0.0.1:8000/');
  */
 define('DB_TYPE', 'mysql');
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'graftp_cbt'); //note that you need to change this to live server db before pushing
+define('DB_NAME', 'graftp_cbt'); //note that you need to change this to live server db before pushing graftpcbt
 define('DB_USER', 'root');
 define('DB_PASS', ''); //update the live server password or get rid of the config file before pushing
 
