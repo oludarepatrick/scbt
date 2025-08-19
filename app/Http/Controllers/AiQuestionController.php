@@ -47,67 +47,98 @@ public function testOpenRouter()
     //openroute AI STARTS HERE
 
     public function generate(Request $request)
-    {
-        ini_set('max_execution_time', 180); // prevent timeout
+{
+    ini_set('max_execution_time', 180); // prevent timeout
 
-        $request->validate([
-            'curriculum_id' => 'required|exists:curriculums,id',
-            'number' => 'required|integer|min:1|max:50',
-        ]);
+    $request->validate([
+        'curriculum_id' => 'required|exists:curriculums,id',
+        'number' => 'required|integer|min:1|max:50',
+    ]);
 
-        $curriculum = Curriculum::findOrFail($request->curriculum_id);
+    $curriculum = Curriculum::findOrFail($request->curriculum_id);
 
-        $prompt = "Generate {$request->number} multiple-choice objective questions for "
-                . "{$curriculum->class} level in the subject '{$curriculum->subject}'. "
-                . "Each question should have 4 options labeled A, B, C, D, and indicate the correct answer. "
-                . "Format:\n\n"
-                . "Question X: ...?\n"
-                . "A) ...\nB) ...\nC) ...\nD) ...\n"
-                . "Correct Answer: <Letter>\n\n";
+    $prompt = "Generate {$request->number} multiple-choice objective questions for "
+            . "{$curriculum->class} level in the subject '{$curriculum->subject}'. "
+            . "Each question should have 4 options labeled A, B, C, D, and indicate the correct answer. "
+            . "Format:\n\n"
+            . "Question X: ...?\n"
+            . "A) ...\nB) ...\nC) ...\nD) ...\n"
+            . "Correct Answer: <Letter>\n\n";
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-            'HTTP-Referer' => 'http://127.0.0.1:8000/',
-        ])->timeout(120)->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'deepseek/deepseek-r1-0528:free',
-            'messages' => [
-                ['role' => 'user', 'content' => $prompt],
-            ],
-        ]);
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+        'HTTP-Referer' => 'http://127.0.0.1:8000/',
+    ])->timeout(120)->post('https://openrouter.ai/api/v1/chat/completions', [
+        'model' => 'deepseek/deepseek-r1-0528:free',
+        'messages' => [
+            ['role' => 'user', 'content' => $prompt],
+        ],
+    ]);
 
-        $data = $response->json();
+    $data = $response->json();
 
-        if (!isset($data['choices'][0]['message']['content'])) {
-            return back()->with('error', 'Failed to generate questions.');
-        }
-
-        $content = $data['choices'][0]['message']['content'];
-
-        // Parse questions
-        preg_match_all('/Question\s+\d+:\s*(.*?)\nA\)\s*(.*?)\nB\)\s*(.*?)\nC\)\s*(.*?)\nD\)\s*(.*?)\nCorrect Answer:\s*([A-D])/s', $content, $matches, PREG_SET_ORDER);
-
-        $saved = [];
-
-        foreach ($matches as $match) {
-            $saved[] = AIQuestion::create([
-                'curriculum_id' => $request->curriculum_id,
-                'question' => trim($match[1]),
-                'option_a' => trim($match[2]),
-                'option_b' => trim($match[3]),
-                'option_c' => trim($match[4]),
-                'option_d' => trim($match[5]),
-                'correct_option' => trim($match[6]),
-                'user_id' => auth()->id(),
-                'source' => 'ai',
-                'class' => $curriculum->class,
-                'subject' => $curriculum->subject,
-                'duration' => $curriculum->duration,
-            ]);
-        }
-
-        return redirect()->route('ai.preview', ['curriculum_id' => $request->curriculum_id])
-                        ->with('success', 'Questions generated and saved.');
+    if (!isset($data['choices'][0]['message']['content'])) {
+        return back()->with('error', 'Failed to generate questions.');
     }
+
+    $content = $data['choices'][0]['message']['content'];
+
+    // Flexible regex to handle **Question**, optional colons, and **Correct Answer**
+    preg_match_all(
+        '/\*?\*?Question\s+\d+:?\*?\*?\s*(.*?)\s*A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*?)\s*\*?\*?Correct Answer:\s*([A-D]|[^*\n]+)\*?\*?/s',
+        $content,
+        $matches,
+        PREG_SET_ORDER
+    );
+
+    if (empty($matches)) {
+        \Log::error("No matches found in AI response", ['content' => $content]);
+        return back()->with('error', 'Could not parse questions. Check AI response format.');
+    }
+
+    $saved = [];
+
+    foreach ($matches as $match) {
+        $correct = trim($match[6]);
+
+        // Normalize correct answer (handle cases where AI writes text instead of a letter)
+        if (!in_array($correct, ['A','B','C','D'])) {
+            $options = [
+                'A' => trim($match[2]),
+                'B' => trim($match[3]),
+                'C' => trim($match[4]),
+                'D' => trim($match[5]),
+            ];
+            foreach ($options as $key => $value) {
+                if (stripos($value, $correct) !== false) {
+                    $correct = $key;
+                    break;
+                }
+            }
+        }
+
+        $saved[] = AIQuestion::create([
+            'curriculum_id'  => $request->curriculum_id,
+            'question'       => trim($match[1]),
+            'option_a'       => trim($match[2]),
+            'option_b'       => trim($match[3]),
+            'option_c'       => trim($match[4]),
+            'option_d'       => trim($match[5]),
+            'correct_option' => $correct,
+            'user_id'        => auth()->id(),
+            'source'         => 'ai',
+            'class'          => $curriculum->class,
+            'subject'        => $curriculum->subject,
+            // ✅ fixed: map time_left → duration, with fallback
+            'duration'       => $curriculum->time_left ?? 0,
+        ]);
+    }
+
+    return redirect()->route('ai.preview', ['curriculum_id' => $request->curriculum_id])
+                    ->with('success', count($saved) . ' questions generated and saved.');
+}
+
+
 
      
 

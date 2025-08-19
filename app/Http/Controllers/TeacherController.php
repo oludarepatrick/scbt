@@ -227,27 +227,36 @@ class TeacherController extends Controller
     }
     
    public function activateCurriculum(Request $request, Curriculum $curriculum)
-    {
-        $request->validate([
+{
+    $request->validate([
         'time_limit' => 'required|integer|min:1',
-        ]);
+    ]);
 
-        $students = Student::where('status', 'ACTIVE')
-                        ->where('class', $curriculum->class)
-                        ->get();
+    $timeLimit = $request->time_limit;
+    $now = now();
 
-        $timeLimit = $request->time_limit;
-        $now = now();
+    // ✅ 1. Update curriculum time_left
+    $curriculum->update(['time_left' => $timeLimit]);
 
-        foreach ($students as $student) {
-            DB::table('quiz_user')->updateOrInsert(
-                ['quiz_id' => $curriculum->id, 'user_id' => $student->student_id],
-                ['status' => 0, 'time_left' => $timeLimit, 'updated_at' => $now, 'created_at' => $now]
-            );
-        }
+    // ✅ 2. Update AI Questions duration for this curriculum
+    \App\Models\AIQuestion::where('curriculum_id', $curriculum->id)
+        ->update(['duration' => $timeLimit]);
 
-        return back()->with('success', 'Subject assigned to all students in class ' . $curriculum->class);
+    // ✅ 3. Assign time to students in quiz_user table
+    $students = Student::where('status', 'ACTIVE')
+                    ->where('class', $curriculum->class)
+                    ->get();
+
+    foreach ($students as $student) {
+        DB::table('quiz_user')->updateOrInsert(
+            ['quiz_id' => $curriculum->id, 'user_id' => $student->student_id],
+            ['status' => 0, 'time_left' => $timeLimit, 'updated_at' => $now, 'created_at' => $now]
+        );
     }
+
+    return back()->with('success', 'Subject assigned to all students in class ' . $curriculum->class . ' with time limit of ' . $timeLimit . ' minutes.');
+}
+
 
 
     public function viewCurriculumQuestions($curriculum_id)

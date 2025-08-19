@@ -86,7 +86,7 @@
                                             @csrf
                                             <h5>Activate Curriculum</h5>
                                             <p>Set time limit (in minutes):</p>
-                                            <input type="number" name="time_limit" min="1" required class="form-control mb-2">
+                                            <input type="number" name="time_limit" min="1" required class="form-control mb-3" placeholder="E.g: 30">
                                             <button type="submit" class="btn btn-primary btn-sm">Activate</button>
                                         </form>
                                     </div>
