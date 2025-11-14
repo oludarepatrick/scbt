@@ -9,9 +9,9 @@ class QuizUser extends Model
 {
     use HasFactory;
     
-   // protected $connection = 'mysql2';
-    protected $table ='quiz_user';
-    protected $fillable = ['quiz_id','user_id','id'];
+   
+    protected $table ='quiz_users';
+    protected $fillable = ['quiz_id', 'curriculum_id', 'user_id', 'time_left','id','status', 'started_at', 'submitted_at'];
 
       public function user()
     {
@@ -20,12 +20,18 @@ class QuizUser extends Model
 
     public function curriculum()
     {
-        return $this->belongsTo(Curriculum::class, 'quiz_id');
+        return $this->belongsTo(Curriculum::class, 'curriculum_id');
     }
 
     public function studentAnswers()
     {
         return $this->hasMany(StudentAnswer::class, 'test_session_id', 'id');
     }
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
     
 }

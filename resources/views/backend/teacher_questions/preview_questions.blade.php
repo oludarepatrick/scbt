@@ -27,7 +27,7 @@
                             @csrf
                             <div class="form-group">
                                 <label><strong>Question:</strong></label>
-                                <textarea name="question" class="form-control question-textarea" style="width:500px;">{{ strip_tags(html_entity_decode($q->question)) }}</textarea>
+                                <textarea name="question" class="form-control question-textarea" style="width:500px;">{{ strip_tags(html_entity_decode($q->question_text)) }}</textarea>
                             </div>
 
                             <div class="form-group mt-2">

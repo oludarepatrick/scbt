@@ -11,15 +11,22 @@ class StudentLoginDetailsController extends Controller
 {
     public function index(Request $request)
 {
-    $query = Student::query();
+    $query = User::query();
 
     // Search by name, class, or email
     if ($request->has('search')) {
-        $search = $request->input('search');
-        $query->where('surname', 'LIKE', "%{$search}%")
-              ->orWhere('firstname', 'LIKE', "%{$search}%")
-              ->orWhere('class', 'LIKE', "%{$search}%")
-              ->orWhere('email', 'LIKE', "%{$search}%");
+    $search = $request->input('search');
+
+    $query->where('category', 'Student')
+          ->where(function ($q) use ($search) {
+              $q->where('firstname', 'LIKE', "%{$search}%")
+                ->orWhere('lastname', 'LIKE', "%{$search}%")
+                ->orWhere('class', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+          });
+} else {
+    $query->where('category', 'Student');
+
     }
 
     $students = $query->paginate(10); // Paginate results

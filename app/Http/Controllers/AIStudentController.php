@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Curriculum;
 use DB;
 use App\Models\QuizUser;
+use App\Models\Quiz;
 use App\Models\AIQuestion;
 use App\Models\StudentAnswer;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -30,25 +31,40 @@ class AIStudentController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
-    public function dashboard()
-    {
-        $student = Auth::user();
-        //dd($student->id);
+   public function dashboard()
+{
+    $student = Auth::user();
 
-        $quizzes = QuizUser::with('curriculum')
-                ->where('user_id', auth()->id())
-                ->get();
+    // Get assigned quizzes with relationships
+    $assignments = QuizUser::where('user_id', $student->id)
+        ->with(['quiz.curriculum.aiQuestions'])
+        ->get();
 
-        return view('student.index', compact('quizzes'));
+    // Map to quizzes
+    $quizzes = $assignments->map(function ($assignment) {
+    $quiz = $assignment->quiz;
+
+    if ($quiz) {
+        $quiz->status = $assignment->status;
+        $quiz->time_left = $assignment->time_left;
+        $quiz->quiz_user_id = $assignment->id;  // <-- Add this
     }
+
+        return $quiz;
+    });
+
+    return view('student.index', compact('quizzes'));
+}
+
+
 
     public function showAvailableQuizzes()
     {
         $student = Auth::user();
 
-        $quizzes = DB::table('quiz_user')
-            ->join('curriculums', 'quiz_user.quiz_id', '=', 'curriculums.id')
-            ->where('quiz_user.user_id', $student->id)
+        $quizzes = DB::table('quiz_users')
+            ->join('curriculums', 'quiz_users.quiz_id', '=', 'curriculums.id')
+            ->where('quiz_users.user_id', $student->id)
             ->select('curriculums.*', 'quiz_user.status')
             ->get();
 
@@ -85,44 +101,57 @@ class AIStudentController extends Controller
 
 
     public function start($quiz_id, Request $request)
-    {
-        $userId = auth()->id();
-        $page = $request->input('page', 1); // Default to page 1
-        $perPage = 3; // Number of questions per page
+{
+    $userId = auth()->id();
+    $page = $request->input('page', 1);
+    $perPage = 3;
 
-        $quiz = DB::table('quiz_user')
-            ->where('quiz_id', $quiz_id)
-            ->where('user_id', $userId)
-            ->first();
+    // Fetch the quiz
+    $quiz = Quiz::findOrFail($quiz_id);
 
-        if (!$quiz || $quiz->status == 1) {
-            return redirect()->route('ai.dashboard')->with('error', 'Invalid or completed quiz.');
-        }
+    // Fetch the quiz_user row for this student
+    $quizUser = QuizUser::where('quiz_id', $quiz->id)
+        ->where('user_id', $userId)
+        ->firstOrFail();
 
-        // If time_left is null, set default and update DB
-        if (is_null($quiz->time_left)) {
-            DB::table('quiz_user')
-                ->where('id', $quiz->id)
-                ->update(['time_left' => 900]);
-            $quiz->time_left = 900;
-        }
-
-        $curriculum = Curriculum::findOrFail($quiz_id);
-
-        $questions = AIQuestion::where('curriculum_id', $quiz_id)
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage + 1) // Fetch one extra to check if more pages exist
-            ->get();
-
-        $hasMore = $questions->count() > $perPage;
-        $questions = $questions->take($perPage);
-
-        $studentAnswers = StudentAnswer::where('user_id', $userId)
-            ->where('test_session_id', $quiz->id)
-            ->pluck('answer_option', 'question_id');
-
-        return view('student.start', compact('quiz', 'curriculum', 'questions', 'page', 'hasMore', 'studentAnswers'));
+    // Block only completed quizzes
+    if ($quizUser->status == 2) {
+        return redirect()->route('ai.dashboard')->with('error', 'Invalid or completed quiz.');
     }
+
+    // Mark as started
+    if ($quizUser->status == 0) {
+        $quizUser->update([
+            'status' => 1,
+            'started_at' => now(),
+        ]);
+    }
+
+    // Initialize time_left if null
+    if (is_null($quizUser->time_left)) {
+        $quizUser->update(['time_left' => $quiz->minutes ?? 900]);
+    }
+
+    // Load curriculum
+    $curriculum = Curriculum::findOrFail($quiz->curriculum_id);
+
+    // Load questions for this curriculum
+    $questions = AIQuestion::where('curriculum_id', $curriculum->id)
+        ->skip(($page - 1) * $perPage)
+        ->take($perPage + 1)
+        ->get();
+
+    $hasMore = $questions->count() > $perPage;
+    $questions = $questions->take($perPage);
+
+    $studentAnswers = StudentAnswer::where('user_id', $userId)
+        ->where('test_session_id', $quizUser->id)
+        ->pluck('answer_option', 'question_id');
+
+    return view('student.start', compact('quiz', 'curriculum', 'questions', 'page', 'hasMore', 'studentAnswers', 'quizUser'));
+}
+
+
 
 
 
@@ -174,55 +203,67 @@ class AIStudentController extends Controller
     }
 
 
-    public function next(Request $request, $quiz_id)
-    {
-        $userId = auth()->id();
-        $page = $request->input('page', 1);
-        $perPage = 3;
-        $testSessionId = $request->input('test_session_id');
+public function next(Request $request, $quiz_id)
+{
+    $userId = auth()->id();
+    $page = $request->input('page', 1);
+    $perPage = 3;
+    $testSessionId = $request->input('test_session_id');
 
-
-        // Save answers
-        $answers = $request->input('answers', []);
-        foreach ($answers as $questionId => $answerOption) {
-            StudentAnswer::updateOrCreate(
-                [
-                    'quiz_id' => $quiz_id,
-                    'user_id' => $userId,
-                    'question_id' => $questionId,
-                    'test_session_id' => $testSessionId
-                ],
-                [
-                    'answer_option' => $answerOption
-                ]
-            );
-        }
-
-        $quiz = QuizUser::where('quiz_id', $quiz_id)
-            ->where('user_id', $userId)
-            ->with('curriculum')
-            ->first();
-
-        if (!$quiz || !$quiz->curriculum) {
-            return redirect()->route('ai.quiz.start', ['id' => $quiz_id])->with('error', 'Quiz session not found.');
-        }
-
-        $curriculum = $quiz->curriculum;
-
-        $questions = $curriculum->aiQuestions()
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage + 1)
-            ->get();
-
-        $hasMore = $questions->count() > $perPage;
-        $questions = $questions->take($perPage);
-
-        $studentAnswers = $quiz->studentAnswers()
-            ->where('user_id', $userId)
-            ->pluck('answer_option', 'question_id');
-
-        return view('student.start', compact('quiz', 'curriculum', 'questions', 'page', 'hasMore', 'studentAnswers'));
+    // Save answers
+    $answers = $request->input('answers', []);
+    foreach ($answers as $questionId => $answerOption) {
+        StudentAnswer::updateOrCreate(
+            [
+                'quiz_id' => $quiz_id,
+                'user_id' => $userId,
+                'question_id' => $questionId,
+                'test_session_id' => $testSessionId
+            ],
+            [
+                'answer_option' => $answerOption,
+                'question_type' => 'ai' // fill with correct type
+            
+            ]
+        );
     }
+
+    $quiz = QuizUser::where('quiz_id', $quiz_id)
+        ->where('user_id', $userId)
+        ->with('curriculum')
+        ->first();
+
+    if (!$quiz || !$quiz->curriculum) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Quiz session not found.'
+        ]);
+    }
+
+    $curriculum = $quiz->curriculum;
+
+    $questions = $curriculum->aiQuestions()
+        ->skip(($page - 1) * $perPage)
+        ->take($perPage + 1)
+        ->get();
+
+    $hasMore = $questions->count() > $perPage;
+    $questions = $questions->take($perPage);
+
+    $studentAnswers = $quiz->studentAnswers
+        ->pluck('answer_option', 'question_id');
+
+    $html = view('student.partials.quiz_batch', compact('questions', 'studentAnswers', 'page', 'hasMore', 'quiz'))->render();
+
+    return response()->json([
+        'success' => true,
+        'html' => $html
+    ]);
+}
+
+
+
+
 
     public function nextAjax(Request $request, $quizUserId)
     {
@@ -246,7 +287,8 @@ class AIStudentController extends Controller
                     'test_session_id' => $testSessionId
                 ],
                 [
-                    'answer_option' => $answerOption
+                    'answer_option' => $answerOption,
+                    'question_type' => 'ai' // fill with correct type
                 ]
             );
         }

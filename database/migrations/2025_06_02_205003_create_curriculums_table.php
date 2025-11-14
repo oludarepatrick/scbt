@@ -16,8 +16,10 @@ class CreateCurriculumsTable extends Migration
         Schema::create('curriculums', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // staff who uploaded
+             $table->string('name');
             $table->string('subject');
             $table->string('class');
+            $table->string('time_left')->nullable();
             $table->text('content');
             $table->timestamps();
         });

@@ -60,7 +60,7 @@
                         <select name="class_id" class="filter form-control @error('class_id') is-invalid @enderror span6" value="{{$quiz->class_id}}" id="classId">
                             <option value="{{ !empty($quiz->class_id)?$quiz->class_id:'' }}">{{ !empty($quiz->class_id)?$quiz->class_id:'Select Class' }}</option>
                             @foreach($classes as $class)
-                                <option value="{{$class->class}}">{{$class->class}}</option>
+                                <option value="{{$class->name}}">{{$class->name}}</option>
                             @endforeach
                         </select>
                         @error('class_id')
@@ -70,26 +70,15 @@
                         @enderror
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Arm</label>
-                        <select name="arm" class="filter form-control @error('arm') is-invalid @enderror span6" value="{{$quiz->arm}}" onChange="showSubjects(this.value)" id="armId">
-                            <option value="{{ !empty($quiz->arm)?$quiz->arm:'' }}">{{ !empty($quiz->arm)?$quiz->arm:'Select Arm' }}</option>
-                            @foreach($arms as $arm)
-                                <option value="{{$arm->division}}">{{$arm->division}}</option>
-                            @endforeach
-                        </select>
-                        @error('arm')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
+                    
                     <span ></span>
                     <div class="mb-3">
                         <label class="form-label">Subject Title</label>
                         <select name="subject_id" class="filter form-control @error('subject_id') is-invalid @enderror span6" id="subjectId">
                             <option value="{{ !empty($quiz->subject_id)?$quiz->subject_id:'' }}">{{ !empty($quiz->subject_id)?$quiz->subject_id:'Select Subject' }}</option>
-                            
+                             @foreach($subjects as $subject)
+                                <option value="{{$subject->name}}">{{$subject->name}}</option>
+                            @endforeach
                         </select>
                         @error('subject_id')
                         <span class="invalid-feedback" role="alert">

@@ -65,11 +65,14 @@ public function testOpenRouter()
             . "A) ...\nB) ...\nC) ...\nD) ...\n"
             . "Correct Answer: <Letter>\n\n";
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-        'HTTP-Referer' => 'http://127.0.0.1:8000/',
-    ])->timeout(120)->post('https://openrouter.ai/api/v1/chat/completions', [
-        'model' => 'deepseek/deepseek-r1-0528:free',
+        $response = Http::withOptions(['verify' => false])
+        ->withHeaders([
+            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+            'HTTP-Referer' => 'http://127.0.0.1:8000/',
+        ])
+        ->timeout(120)
+        ->post('https://openrouter.ai/api/v1/chat/completions', [
+            'model' => 'openai/gpt-3.5-turbo',
         'messages' => [
             ['role' => 'user', 'content' => $prompt],
         ],
@@ -119,7 +122,7 @@ public function testOpenRouter()
 
         $saved[] = AIQuestion::create([
             'curriculum_id'  => $request->curriculum_id,
-            'question'       => trim($match[1]),
+            'question_text'       => trim($match[1]),
             'option_a'       => trim($match[2]),
             'option_b'       => trim($match[3]),
             'option_c'       => trim($match[4]),
@@ -206,7 +209,7 @@ public function testOpenRouter()
         // Extract options
         $options = $request->input('options');
 
-        $question->question = $request->input('question');
+        $question->question_text = $request->input('question');
         $question->option_a = $options['A'] ?? null;
         $question->option_b = $options['B'] ?? null;
         $question->option_c = $options['C'] ?? null;
@@ -251,11 +254,14 @@ public function testOpenRouter()
                 . "A) ...\nB) ...\nC) ...\nD) ...\n"
                 . "Correct Answer: <Letter>\n\n";
 
-        $response = Http::withHeaders([
+        $response = Http::withOptions(['verify' => false])
+        ->withHeaders([
             'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
             'HTTP-Referer' => 'http://127.0.0.1:8000/',
-        ])->timeout(120)->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'deepseek/deepseek-r1-0528:free',
+        ])
+        ->timeout(120)
+        ->post('https://openrouter.ai/api/v1/chat/completions', [
+            'model' => 'openai/gpt-3.5-turbo',
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
             ],
@@ -277,7 +283,7 @@ public function testOpenRouter()
         foreach ($matches as $match) {
             $saved[] = AIQuestion::create([
                 'curriculum_id' => $request->curriculum_id,
-                'question' => trim($match[1]),
+                'question_text' => trim($match[1]),
                 'option_a' => trim($match[2]),
                 'option_b' => trim($match[3]),
                 'option_c' => trim($match[4]),

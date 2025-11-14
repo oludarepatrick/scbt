@@ -7,11 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SchoolInfo extends Model
 {
+    protected $table = 'school_infos';
     use HasFactory;
-    
-    protected $connection = 'mysql2';
-    protected $table ='schinfo';
-    protected $fillable = ['id','session','term'];
-
-    
+    protected $fillable = ['name', 'email','phone','session','term', 'status'];
 }

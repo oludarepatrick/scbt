@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Quiz;
-use App\Models\{Student,ClassDivision,Subject,Session,Classes,SchoolInfo};
+use App\Models\{User,Subject,Session,ClassModel,SchoolInfo};
 
 class QuizController extends Controller
 {
@@ -16,7 +16,7 @@ class QuizController extends Controller
     {
         
         
-        $getInfo = SchoolInfo::where('status', 'ACTIVE')->get(['session','term'])->first();
+        $getInfo = SchoolInfo::where('status', 1)->get(['session','term'])->first();
         
         //dd($getInfo);
         $active_session=$getInfo->session;
@@ -36,8 +36,8 @@ class QuizController extends Controller
      */
     public function create()
     {
-        $data['classes']=Classes::all();
-        $data['arms']=ClassDivision::all();
+        $data['classes']=ClassModel::all();
+        $data['subjects']=Subject::all();
 
         return view('backend.quiz.create', $data);
         //return redirect()->route('food.index')->with('message','Food Info Updated Successfully');
@@ -50,17 +50,34 @@ class QuizController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-    //dd($request);
-        $data = $this->validateForm($request);
-        
-        $getInfo = SchoolInfo::where('status', 'Active')->get(['session','term'])->first();
-        $data['sessions']=$getInfo->session;
-        $data['terms']=$getInfo->term;
-        //dd();
-        $quiz = (new Quiz)->storeQuiz($data);
-        return redirect()->back()->with('message','Quiz Created Successfully');
+{
+    // Validate request
+    $validated = $request->validate([
+        'name' => 'required|string|max:255|unique:quizzes,name',
+        'description' => 'required|string',
+        'minutes' => 'required|integer|min:1',
+        'class_id' => 'required|string',
+        'subject_id' => 'required|string',
+    ]);
+
+    // Get session and term from active SchoolInfo
+    $getInfo = SchoolInfo::where('status', 1)->first(['session', 'term']);
+
+    if (!$getInfo) {
+        return back()->with('error', 'No active school info found. Please set session and term first.');
     }
+
+    // Merge session and term into validated data
+    $validated['sessions'] = $getInfo->session;
+    $validated['terms'] = $getInfo->term;
+    $validated['status'] = '1'; // default active
+
+    // Save quiz directly
+    Quiz::create($validated);
+
+    return back()->with('message', 'Quiz Created Successfully!');
+}
+
 
     /**
      * Display the specified resource.
@@ -81,8 +98,8 @@ class QuizController extends Controller
      */
     public function edit($id)
     {
-        $data['classes']=Classes::all();
-        $data['arms']=ClassDivision::all();
+        $data['classes']=ClassModel::all();
+        $data['subjects']=Subject::all();
 
         $data['quiz'] = (new Quiz)->getQuizById($id);
         
@@ -99,13 +116,32 @@ class QuizController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        $data = $this->validateForm($request);
-        
-        $quiz = (new Quiz)->updateQuiz($data,$id);
-        
-        return redirect(route('quiz.index'))->with('message','Quiz Updated Successfully!');
-    }
+{
+    // Validate incoming data
+    $data = $this->validateForm($request);
+
+    // Retrieve the current active session and term
+    $getInfo = SchoolInfo::where('status', 1)->first(['session', 'term']);
+    $data['sessions'] = $getInfo->session ?? null;
+    $data['terms'] = $getInfo->term ?? null;
+
+    // Update the quiz record
+    $quiz = Quiz::findOrFail($id);
+    $quiz->update([
+        'name'        => $data['name'],
+        'description' => $data['description'],
+        'minutes'     => $data['minutes'],
+        'sessions'    => $data['sessions'],
+        'terms'       => $data['terms'],
+        'class_id'    => $data['class_id'],
+        'subject_id'  => $data['subject_id'],
+    ]);
+
+    return redirect()
+        ->route('quiz.index')
+        ->with('message', 'Quiz Updated Successfully!');
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -118,9 +154,6 @@ class QuizController extends Controller
         (new Quiz)->deleteQuiz($id);
         return redirect(route('quiz.index'))->with('message','Quiz Deleted Successfully!');
 
-       /* $quiz = Quiz::find($id);
-        $quiz->delete();
-        return redirect(route('quiz.index'))->with('message','Quiz Updated Successfully!');*/
     }
 
     public function question($id){
@@ -143,9 +176,9 @@ class QuizController extends Controller
     {
         $classId=$request->cId;
         $armId=$request->armId;
-        //echo $classId;
+        
         $data['subjects']=Subject::where('class', $classId)->get(['subject']);
-        //var_dump($data['subjects']); exit();
+      
        return view('backend.quiz.display-subjects', $data);
     }
 }

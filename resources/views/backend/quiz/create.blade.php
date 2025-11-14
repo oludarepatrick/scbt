@@ -7,108 +7,70 @@
     <div class="span9">
         <div class="content">
 
-        @if(Session::has('message'))
+       @if(Session::has('message'))
+    <div class="alert alert-success mt-2">{{ Session::get('message') }}</div>
+@endif
 
-            <div class="alert alert-success">{{Session::get('message')}}</div>
-        @endif
+@if(Session::has('error'))
+    <div class="alert alert-danger mt-2">{{ Session::get('error') }}</div>
+@endif
 
-        <form action="{{route('quiz.store')}}" method="POST">@csrf
-            <div class="module">
-                <div class="module-head">
-                    <h3>Create Quiz</h3>
-                </div>
-                
-                <div class="module-body">
-                    
-                    <div class="mb-3">
-                        <lable class="control-label" for="name">Quiz name</label>
-                        <div class="form-control">
-                            <input type="text" name="name" class="form-control span6" placeholder="name of a quiz" value="{{old('name')}}">
-                        </div>
-                        @error('name')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message}}</strong>
-                        </span>
-                        @enderror
-                    </div>
+<form action="{{ route('quiz.store') }}" method="POST" class="p-4 bg-light rounded shadow-sm">
+    @csrf
 
-                    <div class="control-group">
-                    <lable class="control-label" for="description">Description</label>
-                    <div class="controls">
-                        <textarea name="description" class="span6" placeholder="description of a quiz">{{old('description')}}</textarea>
-                    </div>
-                    @error('description')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message}}</strong>
-                    </span>
-                    
-                    </div>
-                    @enderror
-                    <div class="form-control">
-                    <lable class="control-label" for="minutes">Minutes</label>
-                    <div class="controls">
-                        <input type="text" name="minutes" class="span2" placeholder="minute" value="{{old('minutes')}}">
-                    </div>
-                    @error('minutes')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message}}</strong>
-                    </span>
-                    @enderror
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Select Class</label>
-                        <select name="class_id" class="filter form-control @error('class_id') is-invalid @enderror span6" id="classId">
-                            <option>Select Class</option>
-                            @foreach($classes as $class)
-                                <option value="{{$class->class}}">{{$class->class}}</option>
-                            @endforeach
-                        </select>
-                        @error('class_id')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Arm</label>
-                        <select name="arm" class="filter form-control @error('arm') is-invalid @enderror span6" onChange="showSubjects(this.value)" id="armId">
-                            <option value="">Select Arm</option>
-                            @foreach($arms as $arm)
-                                <option value="{{$arm->division}}">{{$arm->division}}</option>
-                            @endforeach
-                        </select>
-                        @error('arm')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                    <span id=""></span>
-                    <div class="mb-3">
-                        <label class="form-label">Subject Title</label>
-                        <select name="subject_id" id="subjectId" class="filter form-control @error('subject_id') is-invalid @enderror span6" >
-                            <option value="">Select Subject</option>
-                            
-                        </select>
-                        @error('subject_id')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                    <input type="hidden" name="status" value="0" />
+    <h4 class="mb-4">📝 Create New Quiz</h4>
 
-                    <div class="control-group">
-                        <div class="controls">
-                            <button type="submit" class="btn btn-success">Submit</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <div class="mb-3">
+        <label for="name" class="form-label fw-bold">Quiz Name</label>
+        <input type="text" name="name" id="name" class="form-control" placeholder="Enter quiz title" value="{{ old('name') }}">
+        @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
     </div>
-</div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label fw-bold">Description</label>
+        <textarea name="description" id="description" rows="3" class="form-control" placeholder="Enter a short description">{{ old('description') }}</textarea>
+        @error('description') <div class="text-danger small">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="mb-3">
+        <label for="minutes" class="form-label fw-bold">Duration (Minutes)</label>
+        <input type="number" name="minutes" id="minutes" class="form-control w-25" placeholder="e.g., 30" value="{{ old('minutes') }}">
+        @error('minutes') <div class="text-danger small">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Select Class</label>
+        <select name="class_id" id="classId" class="form-select">
+            <option value="">Select Class</option>
+            @foreach($classes as $class)
+                <option value="{{ $class->name }}" {{ old('class_id') == $class->name ? 'selected' : '' }}>
+                    {{ $class->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('class_id') <div class="text-danger small">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Select Subject</label>
+        <select name="subject_id" id="subjectId" class="form-select">
+            <option value="">Select Subject</option>
+            @foreach($subjects as $subject)
+                <option value="{{ $subject->name }}" {{ old('subject_id') == $subject->name ? 'selected' : '' }}>
+                    {{ $subject->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('subject_id') <div class="text-danger small">{{ $message }}</div> @enderror
+    </div>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Create Quiz
+        </button>
+    </div>
+</form>
+
 
 @endsection
 <script>

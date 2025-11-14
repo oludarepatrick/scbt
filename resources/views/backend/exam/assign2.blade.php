@@ -22,27 +22,14 @@
                         <div class="table-responsive">
                             <div class="col-sm-6 col-md-6 col-lg-6">
                                 
-                                <div class="mb-3">
-                                    <label class="form-label">Arm (Optional)</label>
-                                    <select name="arm" class="filter form-control @error('arm') is-invalid @enderror span6" id="armId">
-                                        <option value="optional">-Select Arm (Optional)-</option>
-                                        @foreach($arms as $arm)
-                                            <option value="{{$arm->division}}">{{$arm->division}}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('arm')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                    @enderror
-                                </div>
+                                
                         
                                 <div class="mb-3">
                                     <label class="form-label">Select Class</label>
                                     <select name="classname" class="filter form-control @error('classname') is-invalid @enderror span6" onChange="displaySubject(this.value)" id="classId">
                                         <option>Select Class</option>
                                         @foreach($classes as $class)
-                                            <option value="{{$class->class}}">{{$class->class}}</option>
+                                            <option value="{{$class->name}}">{{$class->name}}</option>
                                         @endforeach
                                     </select>
                                     @error('classname')
@@ -90,73 +77,44 @@
         </div>
     </div>
     
-@endsection
 <script>
-    //sends data to server, via POST, and displays the received answer
-    var customURL = "<?= asset('images/loader.gif'); ?>";
+document.addEventListener("DOMContentLoaded", function() {
 
-    function displaySubject(value)
-    {
-        //var classId=document.getElementById('classId').value;
-        var armId=document.getElementById('armId').value;
+    var customURL = "{{ asset('images/loader.gif') }}";
 
-        var see_resp = document.getElementById('quiz');
-        var req = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');  // XMLHttpRequest object
+    window.displaySubject = function(value) {
+        var quizDropdown = document.getElementById('quiz');
+        quizDropdown.innerHTML = "<option>Loading...</option>";
 
-        var data ='_token={{csrf_token()}}&armId='+armId+'&cId='+value;
-
-        req.open('POST', 'loadsquizes', true); // set the request
-
-        //adds header for POST request
-        req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-        req.send(data); //sends data
-        req.onreadystatechange = function()
-        {
-            if(req.readyState ==4 && req.status==200)
-            {
-                see_resp.innerHTML = req.responseText;
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "{{ url('exam/loadsquizes') }}", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                quizDropdown.innerHTML = xhr.responseText;
             }
-            else{
-                see_resp.innerHTML ="<img src='"+customURL+"'> <b> Please wait,Loading... </b>";
-            }
-            
-        }
+        };
+        xhr.send('_token={{ csrf_token() }}&cId=' + value);
     }
 
-    function doThis()
-    {
-        var classId=document.getElementById('classId').value;
-        var armId=document.getElementById('armId').value;
-        var quizId=document.getElementById('quiz').value;
+    window.doThis = function() {
+        var classId = document.getElementById('classId').value;
+        var quizId = document.getElementById('quiz').value;
+        var dataDiv = document.getElementById('dataM');
 
-        var see_resp = document.getElementById('dataM');
-        var req = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');  // XMLHttpRequest object
-
-        //pairs index=value with data to be sent to server (including csrf_token)
-        //var data ='_token={{csrf_token()}}&cId='+classId+'&armId'+armId;
-        var data ='_token={{csrf_token()}}&armId='+armId+'&cId='+classId+'&quizId='+quizId;
-
-        
-        req.open('POST', 'loadstud', true); // set the request
-
-        //adds header for POST request
-        req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-        req.send(data); //sends data
-
-        // If the response is successfully received, will be added in #see_resp
-        req.onreadystatechange = function()
-        {
-            if(req.readyState ==4 && req.status==200)
-            {
-                //alert(req.responseText); //just for debug
-                see_resp.innerHTML = req.responseText;
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "{{ url('exam/loadstud') }}", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                dataDiv.innerHTML = xhr.responseText;
+            } else {
+                dataDiv.innerHTML = "<img src='" + customURL + "'> <b>Loading...</b>";
             }
-            else{
-                see_resp.innerHTML ="<img src='"+customURL+"'> <b> Please wait,Loading... </b>";
-            }
-            
-        }
+        };
+        xhr.send('_token={{ csrf_token() }}&cId=' + classId + '&quizId=' + quizId);
     }
+
+});
 </script>
+@endsection

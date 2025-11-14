@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
+use App\Models\SchoolInfo;
+use Illuminate\Support\Facades\DB;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -13,16 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $admin = new User();
-        $admin->name="admin";
-        $admin->email="admin123@gmail.com";
-        $admin->password = bcrypt('password');
-        $admin->visible_password="password";
-        $admin->email_verified_at = NOW();
-        $admin->occupation="CEO";
-        $admin->address="Australia";
-        $admin->phone="07063415220";
-        $admin->is_admin=1;
-        $admin->save();
+        $this->call(SchoolInfoSeeder::class);
     }
 }

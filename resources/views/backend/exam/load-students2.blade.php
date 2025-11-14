@@ -13,7 +13,7 @@
                 </td>
             </tr>
             <tr>
-                <th>S/N</th><th>Student's ID</th><th>Name In Full</th><th>Gender</th>
+                <th>S/N</th><th>Student's ID</th><th>Name In Full</th>
                 <?php if($armId=='optional'){ ?>
                     <th>Arm</th>
                 <?php } ?>
@@ -23,9 +23,8 @@
             @foreach($students as $stud)
                 <tr>
                     <td>{{ ++$i }}</td>
-                    <td>{{ $stud->student_id }}</td>
-                    <td>{{ $stud->surname." ".$stud->firstname." ".$stud->othername }}</td>
-                    <td>{{ $stud->sex }}</td>
+                    <td>{{ $stud->id }}</td>
+                    <td>{{ $stud->firstname . ' ' . $stud->lastname }}</td>
                     <?php if($armId=='optional'){ ?>
                         <td>{{ $stud->class_division }}</td>
                     <?php } ?>

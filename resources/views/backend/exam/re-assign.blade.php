@@ -27,7 +27,7 @@
                                     <select name="arm" class="filter form-control @error('arm') is-invalid @enderror span6" id="armId">
                                         <option value="optional">-Select Arm (Optional)-</option>
                                         @foreach($arms as $arm)
-                                            <option value="{{$arm->division}}">{{$arm->division}}</option>
+                                            <option value="{{$arm->class_division}}">{{$arm->class_division}}</option>
                                         @endforeach
                                     </select>
                                     @error('arm')
@@ -42,7 +42,7 @@
                                     <select name="classname" class="filter form-control @error('classname') is-invalid @enderror span6" onChange="displaySubject(this.value)" id="classId">
                                         <option>Select Class</option>
                                         @foreach($classes as $class)
-                                            <option value="{{$class->class}}">{{$class->class}}</option>
+                                            <option value="{{$class->name}}">{{$class->name}}</option>
                                         @endforeach
                                     </select>
                                     @error('classname')

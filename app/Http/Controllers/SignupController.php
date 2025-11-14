@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 //use App\Providers\RouteServiceProvider;
 use App\Models\User;
-use App\Models\Student;
 //use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use App\Services\ZeptoMailService;
 
 
 
@@ -33,30 +34,6 @@ class SignupController extends Controller
     }
 
     /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-   protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'dob' => 'nullable|date',
-            'sex' => 'required|string',
-            'phone' => 'nullable|string|max:20',
-            'class' => 'required|string|max:100',
-            'class_division' => 'nullable|string|max:50',
-            'category' => 'required|in:Student,Staff', // Ensure category is required and valid
-        ], [
-            'email.unique' => 'The email address is already registered. Please use a different email.',
-        ]);
-
-    }
-
-    /**
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
@@ -69,70 +46,88 @@ class SignupController extends Controller
         return view('auth.signup_form'); // Ensure you have this Blade file
     }
     
-    public function create(Request $request)
-    {
-        //dd($request);
-         // Validate user input
-         $validatedData = $request->validate([
-             'firstname' => ['required', 'string', 'max:255'],
-             'lastname' => ['required', 'string', 'max:255'],
-             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-             'password' => ['required', 'string', 'min:8', 'confirmed'],
-             'dob' => 'nullable|date',
-             'sex' => 'required|string',
-             'phone' => 'nullable|string|max:20',
-             'class' => 'required|string|max:100',
-             'class_division' => 'nullable|string|max:50',
-             'category' => 'required|in:Student,Staff',
-         ]);
-        
-     
-         // Generate a unique 6-digit student ID
-         $studentId = mt_rand(100000, 999999);
-     
-         // Create user
-        
-     
-         // If user is a Student, store details in the students table
-         if ($validatedData['category'] === 'Student') {
+   public function create(Request $request, ZeptoMailService $zeptomail)
+{
+    // ✅ Validate user input
+    $validatedData = $request->validate([
+        'firstname' => 'required|string|max:255',
+        'lastname'  => 'required|string|max:255',
+        'email'     => 'required|string|email|max:255|unique:users',
+        'password'  => 'required|string|min:6',
+        'phone'     => 'nullable|string|max:20',
+        'class'     => 'nullable|string|max:100',
+        'category'  => 'required|in:Student,Staff',
+        'term'      => 'nullable|string|max:50',
+        'session'   => 'nullable|string|max:50',
+    ]);
 
-            $add = Student::create([
-                 'student_id' => $studentId,
-                 'surname' => strtoupper($validatedData['lastname']),
-                 'firstname' => strtoupper($validatedData['firstname']),
-                 'othername' => 'Null',
-                 'phone' => $validatedData['phone'] ?? null,
-                 'dob' => $validatedData['dob'] ?? null,
-                 'sex' => $validatedData['sex'] ?? null,
-                 'class' => $validatedData['class'] ?? null,
-                 'class_division' => $validatedData['class_division'] ?? null,
-                 'password' => Hash::make($validatedData['password']),
-                 'visible_password' => $validatedData['password'],
-                 'username' => $validatedData['email'],
-                 'status' => 'ACTIVE',
-                 'session' => $request->input('session'),
-                 'payment_status' => 'PAID'
-             ]);
-           // echo $studentId = $add->sn;
-           $studentId = isset($add->sn)? $add->sn:$add->id;
-         }
-         $user = User::create([
-            'name' => strtoupper($validatedData['firstname'] . ' ' . $validatedData['lastname']),
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            'phone' => $validatedData['phone'] ?? null,
-            'occupation' => $validatedData['category'],
-            'is_admin' => $validatedData['category'] === 'Staff' ? 1 : 0,
-            'visible_password' => $validatedData['password'], // ⚠ Not recommended for security
-            'stud_id' => $studentId,
-        ]);
+    // ✅ Create user record
+    $user = User::create([
+        'firstname'         => ucfirst($validatedData['firstname']),
+        'lastname'          => ucfirst($validatedData['lastname']),
+        'class'             => $validatedData['class'] ?? null,
+        'email'             => $validatedData['email'],
+        'password'          => Hash::make($validatedData['password']),
+        'visible_password'  => $validatedData['password'], // plain text for internal use
+        'category'          => $validatedData['category'],
+        'phone'             => $validatedData['phone'] ?? null,
+        'term'              => $validatedData['term'] ?? null,
+        'session'           => $validatedData['session'] ?? null,
+        'status'            => 1,
+        'is_admin'          => $validatedData['category'] === 'Staff' ? 1 : 2, // 1=Staff, 2=Student
+    ]);
 
-         // Send email with login details
-        //  Mail::to($validatedData['email'])->send(new UserRegistrationMail($user, $validatedData['password']));
-         //Mail::to($validatedData['email'])->queue(new UserRegistrationMail($user, $validatedData['password']));
+    // ✅ Prepare merge variables for ZeptoMail template
+    $mergeData = [
+        'firstname' => $user->firstname,
+        'lastname'  => $user->lastname,
+        'email'     => $user->email,
+        'class'     => $user->class,
+        'password'  => $user->visible_password,
+        'category'  => $user->category,
+        'login_url' => route('login'),
+    ];
 
+    // ✅ Send email via ZeptoMail
+   /* try {
+        $zeptomail->sendTemplateEmail(
+            'user-login-details',      // your ZeptoMail template key
+            $user->email,              // recipient email
+            $mergeInfo                 // template variables
+        );
+    } catch (\Exception $e) {
+        \Log::error('ZeptoMail send failed: ' . $e->getMessage());
+    }*/
+    
+        try {
+        // --- 1. Notify school admin ---
+        Http::withoutVerifying()
+            ->withHeaders([
+                'authorization' => 'Zoho-enczapikey ' . env('ZEPTOMAIL_API_KEY'),
+                'accept'        => 'application/json',
+                'content-type'  => 'application/json',
+            ])->timeout(30)
+            ->post(env('ZEPTOMAIL_URL') . '/v1.1/email/template', [
+                'template_key' => 'user-login-details',
+                'from' => [
+                    'address' => 'development@leverpay.io',
+                    'name'    => 'School Admin'
+                ],
+                'to' => [
+                    ['email_address' => ['address' => 'tenak09@gmail.com']]
+                ],
+                'merge_info' => $mergeData
+            ]);
+    } catch (\Exception $e) {
+        Log::error('Failed to send admin registration email: ' . $e->getMessage());
+    }
 
+    // ✅ Redirect after registration
+    return redirect()
+        ->route('login')
+        ->with('success', 'Registration successful! Login details have been sent to your email.');
 
-         return redirect()->route('login')->with('success', 'Registration successful. You can now log in.');
-     }
+    }
+//ends here
+    
 }

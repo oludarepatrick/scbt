@@ -12,6 +12,29 @@
                                     </b> </a></li>
                                
                             </ul>
+                            <ul class="widget widget-menu unstyled">
+                            <li>
+                                <a href="{{ route('info.index') }}">
+                                    <i class="menu-icon icon-book"></i> Manage Info
+                                </a>
+                            </li>
+                            </ul>
+
+                            <ul class="widget widget-menu unstyled">
+                            <li>
+                                <a href="{{ route('classes.index') }}">
+                                    <i class="menu-icon icon-book"></i> Manage Classes
+                                </a>
+                            </li>
+                            </ul>
+
+                            <ul class="widget widget-menu unstyled">
+                            <li>
+                                <a href="{{ route('subjects.index') }}">
+                                    <i class="menu-icon icon-book"></i> Manage Subjects
+                                </a>
+                            </li>
+                            </ul>
 
                             <ul class="widget widget-menu unstyled">
                                 <li><a href="{{route('question.create')}}"><i class="menu-icon icon-bullhorn"></i>Create Question </a>

@@ -8,12 +8,13 @@ use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\User;
 use App\Models\Result;
+use App\Models\Curriculum;
 class Quiz extends Model
 {
     use HasFactory;
 
     //protected $fillable = ['name','description','minutes'];
-    protected $fillable = ['name','description','minutes', 'class_id', 'arm', 'subject_id','status','sessions','terms'];
+    protected $fillable = ['name','description','minutes', 'class_id', 'subject_id','status','sessions','terms'];
 
     public function questions(){
         return $this->hasMany(Question::class);
@@ -59,5 +60,10 @@ class Quiz extends Model
             array_push($attemptQuiz,$u->quiz_id);
         }
         return $attemptQuiz;
+    }
+
+    public function curriculum()
+    {
+        return $this->belongsTo(Curriculum::class);
     }
 }

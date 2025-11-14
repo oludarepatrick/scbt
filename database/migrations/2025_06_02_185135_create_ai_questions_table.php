@@ -14,19 +14,23 @@ class CreateAiQuestionsTable extends Migration
     public function up()
     {
         Schema::create('ai_questions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('curriculum_id')->constrained()->onDelete('cascade');
-            $table->string('class');
-            $table->string('subject');
-            $table->text('question_text');
-            $table->string('option_a');
-            $table->string('option_b');
-            $table->string('option_c')->nullable();
-            $table->string('option_d')->nullable();
-            $table->string('option_e')->nullable();
-            $table->char('correct_option', 1);
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->foreignId('curriculum_id')->constrained('curriculums')->onDelete('cascade');
+        $table->string('class');
+        $table->string('subject');
+        $table->text('question_text');
+        $table->string('option_a');
+        $table->string('option_b');
+        $table->string('option_c')->nullable();
+        $table->string('option_d')->nullable();
+        $table->string('option_e')->nullable();
+        $table->char('correct_option', 1);
+        $table->string('duration')->nullable();
+        $table->string('source')->default('ai');
+        $table->timestamps();
+    });
+
     }
 
     /**

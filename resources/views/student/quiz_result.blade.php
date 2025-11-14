@@ -1,4 +1,11 @@
 @extends('layouts.app')
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
 
 @section('content')
 <div class="container">
@@ -66,8 +73,13 @@
                 </div>
             @endforeach
 
-            <a href="{{ route('ai.dashboard') }}" class="btn btn-primary mt-3">Back to Dashboard</a>
-            <a href="{{ route('quiz.result.pdf', $quiz->id) }}" class="btn btn-outline-dark" target="_blank">Download PDF</a>
+            <div class="no-print">
+                <a href="{{ route('ai.dashboard') }}" class="btn btn-primary mt-3">Back to Dashboard</a>
+
+                <button class="btn btn-outline-dark mt-3" onclick="window.print()">
+                    Print / Save as PDF
+                </button>
+            </div>
 
         </div>
     </div>

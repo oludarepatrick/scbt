@@ -14,9 +14,18 @@ class StaffLoginDetailsController extends Controller
 
     // Search by name or email
     if ($request->has('search')) {
-        $search = $request->input('search');
-        $query->where('name', 'LIKE', "%{$search}%")
-              ->orWhere('email', 'LIKE', "%{$search}%");
+    $search = $request->input('search');
+
+    $query->where('category', 'Staff')
+          ->where(function ($q) use ($search) {
+              $q->where('firstname', 'LIKE', "%{$search}%")
+                ->orWhere('lastname', 'LIKE', "%{$search}%")
+                ->orWhere('class', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+          });
+} else {
+    $query->where('category', 'Student');
+
     }
 
     $staff = $query->paginate(10); // Paginate results

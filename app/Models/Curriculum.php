@@ -5,13 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\AiQuestion;
+use App\Models\Quiz;
+use App\Models\User;
+use App\Models\Result;
+use App\Models\Curriculum;
+
 class Curriculum extends Model
 {
     protected $table = 'curriculums';
 
     use HasFactory;
 
-    protected $fillable = ['user_id', 'subject', 'class', 'content', 'name', 'time_left'];
+    protected $fillable = ['curriculum_id','user_id', 'subject', 'class', 'content', 'name', 'time_left'];
 
     public function user()
     {
@@ -20,7 +26,7 @@ class Curriculum extends Model
 
     public function aiQuestions()
     {
-        return $this->hasMany(AiQuestion::class);
+        return $this->hasMany(AiQuestion::class, 'curriculum_id');
     }
 
     public function attempts()
@@ -32,4 +38,10 @@ class Curriculum extends Model
     {
         return $this->belongsTo(Subject::class); // optional
     }
+
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
 }

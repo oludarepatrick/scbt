@@ -25,7 +25,8 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Name</th>
+                            <th>Firstname</th>
+                            <th>Lastname</th>
                             <th>Email</th>
                             <th>Password</th>
                         </tr>
@@ -34,7 +35,8 @@
                         @foreach($staff as $key => $user)
                         <tr>
                             <td>{{ $staff->firstItem() + $key }}</td>
-                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->firstname }}</td>
+                            <td>{{ $user->lastname }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->visible_password }}</td> <!-- Consider securing passwords -->
                         </tr>

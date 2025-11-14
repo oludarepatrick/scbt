@@ -21,16 +21,19 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
+        'class',
+        'class_division',
         'email',
         'password',
         'visible_password',
-        'occupation',
-        'address',
+        'category',
         'phone',
-        'bio',
-        'is_admin',
-        'stud_id'
+        'status',
+        'term',
+        'session',
+        'is_admin'
     ];
 
     /**
@@ -51,9 +54,7 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+   
 
     public function storeUser($data){
         $data['visible_password'] = $data['password'];
@@ -70,20 +71,29 @@ class User extends Authenticatable
         return User::find($id);
     }
 
-    public function updateUser($data,$id){
-        $user = User::find($id);
-        if($data['password']){
+    public function updateUser($data, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if (!empty($data['password'])) {
             $user->password = bcrypt($data['password']);
             $user->visible_password = $data['password'];
         }
-        $user->name = $data['name'];
-        $user->occupation = $data['occupation'];
-        $user->phone = $data['phone'];
-        $user->address = $data['address'];
+
+        $user->firstname = $data['firstname'] ?? $user->firstname;
+        $user->lastname = $data['lastname'] ?? $user->lastname;
+        $user->class = $data['class'] ?? $user->class;
+        $user->class = $data['class_division'] ?? $user->class;
+        $user->email = $data['email'] ?? $user->email;
+        $user->phone = $data['phone'] ?? $user->phone;
+        $user->category = $data['category'] ?? $user->category;
+        $user->is_admin = $data['is_admin'] ?? $user->is_admin;
+
         $user->save();
+
         return $user;
-        
     }
+
 
     public function deleteUser($id){
         return User::find($id)->delete();

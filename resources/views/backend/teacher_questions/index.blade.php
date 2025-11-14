@@ -46,7 +46,7 @@
     <div class="content">
         <div class="module">
             <div class="module-head">
-                <h3>AI Maths Curriculum Questions</h3>
+                <h3>AI Curriculum Questions</h3>
             </div>
 
             @if(session('success'))
@@ -74,7 +74,13 @@
                             <td>{{ $item->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('teacher.ai_questions.view', $item->id) }}" class="btn btn-info btn-sm">View</a>
-
+                                <form action="{{ route('teacher.ai_questions.delete', $item->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Are you sure you want to delete this curriculum and all its questions?');">
+                                        Delete
+                                    </button>
+                                </form>
                                 <!-- Activate Button -->
                                 <button class="btn btn-sm btn-success" onclick="openModal({{ $item->id }})">Activate</button>
 
@@ -93,8 +99,8 @@
                                 </div>
 
                                 @php
-                                    $assignedCount = DB::table('quiz_user')->where('quiz_id', $item->id)->count();
-                                    $completedCount = DB::table('quiz_user')->where('quiz_id', $item->id)->where('status', 1)->count();
+                                    $assignedCount = DB::table('quiz_users')->where('quiz_id', $item->id)->count();
+                                    $completedCount = DB::table('quiz_users')->where('quiz_id', $item->id)->where('status', 1)->count();
                                 @endphp
 
                                 <span class="badge bg-info text-dark">Assigned: {{ $assignedCount }}</span>

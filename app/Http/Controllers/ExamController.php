@@ -8,7 +8,7 @@ use App\Models\Question;
 use App\Models\Result;
 use App\Models\User;
 use App\Models\{Answer,SchoolInfo};
-use App\Models\{Student,ClassDivision,Subject,Session,Classes,QuizUser,UserTimer};
+use App\Models\{Student,Subject,Session,ClassModel,QuizUser,UserTimer};
 use DB;
 
 class ExamController extends Controller
@@ -30,20 +30,23 @@ class ExamController extends Controller
      */
     public function create()
     {
-        $data['classes']=Classes::all();
-        $data['arms']=ClassDivision::all();
+        $data['classes']=ClassModel::all();
 
         
         //dd($data);
         return view('backend.exam.assign2', $data);
     }
     
-    public function reAssignForm()
+   public function reAssignForm()
     {
-        $data['classes']=Classes::all();
-        $data['arms']=ClassDivision::all();
+        $data['classes'] = ClassModel::all();
 
-        
+        // Fetch distinct class divisions (arms)
+        $data['arms'] = \App\Models\User::select('class_division')
+                        ->whereNotNull('class_division')
+                        ->distinct()
+                        ->get();
+
         return view('backend.exam.re-assign', $data);
     }
     /**
@@ -54,42 +57,50 @@ class ExamController extends Controller
      */
     public function assignExam(Request $request)
     {
-        //dd($request->quizId);
-        foreach($request->mystud as $ky=>$stud_id)
-        {
-            //echo $stud_id."<br/>";
-            $saveQ=QuizUser::create([
-                'user_id'=>$stud_id,
-                'quiz_id'=>$request->quizId
-            ]);
+        $quiz = Quiz::findOrFail($request->quizId);
+
+        foreach ($request->mystud as $stud_id) {
+            QuizUser::updateOrCreate(
+                [
+                    'user_id' => $stud_id,
+                    'quiz_id' => $quiz->id
+                ],
+                [
+                    'curriculum_id' => $quiz->curriculum_id, // ADD THIS
+                    'time_left' => $quiz->minutes,
+                    'status' => '0',
+                ]
+            );
         }
-        //$quiz = (new Quiz)->assignExam($request->all());
-        return redirect()->back()->with('message','Exam successfully assigned!');
+
+        return redirect()->back()->with('message', 'Exam successfully assigned!');
     }
+
+
     
     public function saveReAssigning(Request $request)
-    {
-        foreach($request->mystud as $ky=>$stud_id)
-        {
-            //echo $stud_id."<br/>";
-            $gtTm=Quiz::where('id',$request->quizId)->get(['minutes'])->first();
-            $timer=($gtTm->minutes*60*1000);
-            
-            /*$updateTimer=UserTimer::where('userId', $stud_id)
-            ->where('quizId', $request->quizId)
+{
+    foreach ($request->mystud as $stud_id) {
+
+        $quizTime = Quiz::where('id', $request->quizId)->value('minutes');
+        $timer = $quizTime * 60 * 1000;
+
+        DB::table('quiz_users')
+            ->where('user_id', $stud_id)
+            ->where('quiz_id', $request->quizId)
             ->update([
-                't_timer'=>$timer,
-                'status'=>0
-            ]);*/
-            DB::table('user_timer')
-                ->where('userId', $stud_id)
-                ->where('quizId', $request->quizId)
-                ->limit(1)  
-                ->update(array('t_timer' => $timer, 'status'=>0));
-        }
-        
-        return redirect()->back()->with('message','Exam successfully Re-Assigned!');   
+                'time_left' => $timer,
+                'status' => 0, // reset to not started
+                'started_at' => null,
+                'submitted_at' => null,
+                'updated_at' => now(),
+            ]);
     }
+
+    return redirect()->back()->with('message', 'Exam successfully Re-Assigned!');
+}
+
+
 
     /**
      * Display the specified resource.
@@ -185,8 +196,7 @@ public function viewResult($userId,$quizId){
 
 public function result(){
     //$quizzes = Quiz::get();
-    $data['classes']=Classes::all();
-    $data['arms']=ClassDivision::all();
+    $data['classes']=ClassModel::all();
     
      
 
@@ -233,54 +243,36 @@ public function userQuizResult($userId,$quizId){
     }
     
     public function showStudent(Request $request)
-    {
-        
-        if(!empty($request))
-        {
-            $schlInf=SchoolInfo::get(['id','session','term'])->first();
-            $activeSes=$schlInf->session;
-            $activeTerm=$schlInf->term;
-            
-            if($request->armId!="optional")
-            {
-                $data['students']=Student::where('class',$request->cId)
-                    ->where('class_division',$request->armId)
-                    ->where('status', 'Active')
-                    ->where('session', $activeSes)
-                    ->whereNotIn('sn', 
-                        QuizUser::where('quiz_id', $request->quizId)->get(['user_id'])
-                    )
-                    ->get([
-                        'sn','surname','firstname', 'othername','sex','student_id','class_division'
-                    ]);
-            }
-            else{
-                $data['students']=Student::where('class',$request->cId)
-                    ->where('status', 'Active')
-                    ->where('session', $activeSes)
-                    ->whereNotIn('sn', 
-                        QuizUser::where('quiz_id', $request->quizId)->get(['user_id'])
-                    )
-                    ->get([
-                        'sn','surname','firstname', 'othername','sex','student_id','class_division'
-                    ]);
-            }
-            //echo count($data['students']); exit(); 
-            //echo $request->quizId."<br/>".$request->armId."<br/>".$request->cId; exit();
-            
-            $data['classId']=$request->cId;
-            $data['armId']=$request->armId;
-            $data['quizId']=$request->quizId;
+{
+    if (!empty($request)) {
+        $schoolInfo = SchoolInfo::select('session', 'term')->first();
 
-            return view('backend.exam.load-students',$data);
-            //return resposnse()->json(view('backend.exam.load-students',$data));
+        if (!$schoolInfo) {
+            return response("<h3 align='center' style='color:red'>School info not found</h3>");
         }
-        else{
-            echo "<h3 align='center' style='color:red'>No Record(s) Found</h3>";
+
+        $activeSession = $schoolInfo->session;
+
+        $data['students'] = User::where('class', $request->cId)
+            ->where('status', '1')
+            ->where('category', 'Student')
+            ->where('session', $activeSession)
+            ->whereNotIn('id', QuizUser::where('quiz_id', $request->quizId)->pluck('user_id'))
+            ->get(['id', 'firstname', 'lastname', 'class']);
+
+        $data['classId'] = $request->cId;
+        $data['quizId'] = $request->quizId;
+
+        if ($data['students']->isEmpty()) {
+            return response("<h3 align='center' style='color:red'>No Record(s) Found</h3>");
         }
-        
+
+        return view('backend.exam.load-students', $data);
     }
-    
+
+    return response("<h3 align='center' style='color:red'>No Record(s) Found</h3>");
+}
+
     public function showStudForReassign(Request $request)
     {
        
@@ -292,26 +284,27 @@ public function userQuizResult($userId,$quizId){
             
             if($request->armId!="optional")
             {
-                $data['students']=Student::where('class',$request->cId)
-                    ->where('class_division',$request->armId)
-                    ->where('status', 'Active')
+                $data['students']=User::where('class',$request->cId)
+                    ->where('status', '1')
+                    ->where('category', 'Student')
                     ->where('session', $activeSes)
-                    ->whereIn('sn', 
+                    ->whereIn('id', 
                         QuizUser::where('quiz_id', $request->quizId)->get(['user_id'])
                     )
                     ->get([
-                        'sn','surname','firstname', 'othername','sex','student_id','class_division'
+                        'id','firstname','lastname', 'class'
                     ]);
             }
             else{
-                $data['students']=Student::where('class',$request->cId)
-                    ->where('status', 'Active')
+                $data['students']=User::where('class',$request->cId)
+                    ->where('status', '1')
+                    ->where('category', 'Student')
                     ->where('session', $activeSes)
                     ->whereIn('sn', 
                         QuizUser::where('quiz_id', $request->quizId)->get(['user_id'])
                     )
                     ->get([
-                        'sn','surname','firstname', 'othername','sex','student_id','class_division'
+                        'id','firstname','lastname','student_id'
                     ]);
             }
             //echo count($data['students']); exit(); 
@@ -330,44 +323,48 @@ public function userQuizResult($userId,$quizId){
         
     }
 
-    public function loadQuizes(Request $request)
-    {
-        //$data['classname']=$request->cId;
-        //$data['arm']=$request->armId;
-        
-        if($request->armId!="optional"){
-            $data['quizes']=Quiz::where('class_id', $request->cId)->where('arm', $request->armId)->get();
-        }else{
-           $data['quizes']=Quiz::where('class_id', $request->cId)->get(); 
-        }
+   public function loadQuizes(Request $request)
+{
+    $classId = $request->cId;
 
-        return view('backend.exam.load-quiz-title',$data);
+    if (empty($classId)) {
+        return response("<option value=''>Select Class First</option>");
     }
-    
-    public function loadQuizes2(Request $request)
-    {
-        //$data['classname']=$request->cId;
-        //$data['arm']=$request->armId;
-        
-        /*if($request->armId!="optional"){
-            $data['quizes']=Quiz::where('class_id', $request->cId)
-            ->where('arm', $request->armId)
-            ->whereIn('id', 
-                Result::select('quiz_id')->distinct()->get(['quiz_id'])
-            )
-            ->get();
-        }else{*/
-           $data['quizes']=Quiz::where('class_id', $request->cId)
-           ->whereIn('id', 
-                Result::select('quiz_id')->distinct()->get(['quiz_id'])
-            )
-           ->get(); 
-        //}
 
-        return view('backend.exam.load-quiz-title',$data);
-        
-        //echo "<option>eeee</option>";
+    $quizzes = Quiz::where('class_id', $classId)->get();
+
+    if ($quizzes->isEmpty()) {
+        return response("<option value=''>No quiz found for this class</option>");
     }
+
+    $options = "<option value=''>Select Quiz</option>";
+    foreach ($quizzes as $quiz) {
+        $options .= "<option value='{$quiz->id}'>{$quiz->name}</option>";
+    }
+
+    return response($options);
+}
+
+public function loadQuizes2(Request $request)
+{
+    $classId = $request->cId;
+
+    $quizzes = Quiz::where('class_id', $classId)
+        ->whereIn('id', Result::select('quiz_id')->distinct()->pluck('quiz_id'))
+        ->get();
+
+    if ($quizzes->isEmpty()) {
+        return response("<option value=''>No available quizzes</option>");
+    }
+
+    $options = "<option value=''>Select Quiz</option>";
+    foreach ($quizzes as $quiz) {
+        $options .= "<option value='{$quiz->id}'>{$quiz->name}</option>";
+    }
+
+    return response($options);
+}
+
     
     public function studResult(Request $request)
     {
@@ -387,7 +384,7 @@ public function userQuizResult($userId,$quizId){
             
          if($armId!="optional")
             {
-                $students=Student::where('class',$classname)
+                $students=User::where('class',$classname)
                     ->where('class_division',$armId)
                     ->where('status', 'Active')
                     ->where('session', $activeSes)
@@ -395,7 +392,7 @@ public function userQuizResult($userId,$quizId){
                         QuizUser::select('user_id')->distinct()->where('quiz_id', $quizId)->get(['user_id'])
                     )
                     ->get([
-                        'sn','surname','firstname', 'othername','sex','student_id','class_division'
+                        'id','firstname','lastname', 'class'
                     ])->toArray();
             }
             else{
@@ -406,7 +403,7 @@ public function userQuizResult($userId,$quizId){
                         QuizUser::select('user_id')->distinct()->where('quiz_id', $quizId)->get(['user_id'])
                     )
                     ->get([
-                        'sn','surname','firstname', 'othername','sex','student_id','class_division'
+                        'id','firstname','lastname', 'class'
                     ])->toArray();
             }
         
@@ -417,10 +414,9 @@ public function userQuizResult($userId,$quizId){
         foreach($students as $student)
         {
             $userId=$student['sn'];
-            $name=$student['surname'].' '.$student['firstname'].' '.$student['othername'];
-            $sex=$student['sex'];
+            $name=$student['firstname'].' '.$student['lastname'].' '.$student['class'];
+            
             $student_id=$student['student_id'];
-            $class_division=$student['class_division'];
         
             
             $results = Result::where('user_id',$userId)->where('quiz_id',$quizId)->get();
@@ -449,7 +445,6 @@ public function userQuizResult($userId,$quizId){
                 "name"=>$name,
                 "sex"=>$sex,
                 "student_id"=>$student_id,
-                "class_division"=>$class_division,
                 "class"=>$classname,
                 "percentage"=>$percentage,
                 "userCorrectedAnswer"=>$userCorrectedAnswer,

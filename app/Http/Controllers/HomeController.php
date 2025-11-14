@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Quiz;
 use App\Models\Result;
-use App\Models\Classes;
+use App\Models\ClassModel;
 use DB;
 use Illuminate\Http\Request;
 
@@ -30,7 +30,7 @@ class HomeController extends Controller
         
         if(auth()->user()->is_admin==1)
         {
-            $classes=Classes::all()->toArray();
+            $classes=ClassModel::all()->toArray();
             //dd($classes);
         
             return view('admin.index');
@@ -49,12 +49,12 @@ class HomeController extends Controller
         }
         //dd($authUser);
         $assignedQuizId = [];
-        $user = DB::table('quiz_user')->where('user_id', $authUser)->get();
+        $user = DB::table('quiz_users')->where('user_id', $authUser)->get();
         foreach($user as $u){
             array_push($assignedQuizId,$u->quiz_id);
         }
         $quizzes = Quiz::whereIn('id',$assignedQuizId)->get();
-        $isExamAssigned = DB::table('quiz_user')->where("user_id",$authUser)->exists();
+        $isExamAssigned = DB::table('quiz_users')->where("user_id",$authUser)->exists();
         $wasQuizCompleted = Result::where('user_id',$authUser)->whereIn('quiz_id',(new Quiz)->hasQuizAttempted())->pluck('quiz_id')->toArray();
 
 

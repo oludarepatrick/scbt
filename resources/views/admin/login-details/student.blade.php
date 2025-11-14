@@ -36,8 +36,8 @@
                         @foreach($students as $key => $student)
                         <tr>
                             <td>{{ $students->firstItem() + $key }}</td>
-                            <td>{{ $student->surname }}</td>
                             <td>{{ $student->firstname }}</td>
+                            <td>{{ $student->lastname }}</td>
                             <td>{{ $student->class }}</td>
                             <td>{{ $student->username }}</td>
                             <td>{{ $student->visible_password }}</td> <!-- Consider securing passwords -->

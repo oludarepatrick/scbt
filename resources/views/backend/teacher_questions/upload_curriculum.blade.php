@@ -40,7 +40,9 @@
                         <select name="subject" class="form-control span6">
                             <option value="">Select Subject</option>
                             @foreach($subjects as $subject)
-                                <option value="{{ $subject }}">{{ $subject }}</option>
+                                <option value="{{ $subject->name }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                    {{ $subject->name }}
+                                </option>
                             @endforeach
                         </select>
                         @error('subject')
@@ -52,8 +54,10 @@
                         <label class="control-label">Select Class</label>
                         <select name="class" class="form-control span6">
                             <option value="">Select Class</option>
-                            @foreach($classes as $class)
-                                <option value="{{ $class }}">{{ $class }}</option>
+                             @foreach($classes as $class)
+                                <option value="{{ $class->name }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
+                                    {{ $class->name }}
+                                </option>
                             @endforeach
                         </select>
                         @error('class')

@@ -22,6 +22,7 @@
                     <th>Description</th>
                     <th>Minutes</th>
                     <th>Status</th>
+                    <th>View</tH>
                     <th>Edit</tH>
                     <th>Delete</th>
                     <th></th>

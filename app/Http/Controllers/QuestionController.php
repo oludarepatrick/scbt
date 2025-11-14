@@ -16,7 +16,7 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $getInfo = SchoolInfo::where('status', 'Active')->get(['session','term'])->first();
+        $getInfo = SchoolInfo::where('status', '1')->get(['session','term'])->first();
         $active_session=$getInfo->session;
         $active_term=$getInfo->term;
         
@@ -41,7 +41,7 @@ class QuestionController extends Controller
      */
     public function create()
     {
-        $getInfo = SchoolInfo::where('status', 'Active')->get(['session','term'])->first();
+        $getInfo = SchoolInfo::where('status', 1)->get(['session','term'])->first();
         $active_session=$getInfo->session;
         $active_term=$getInfo->term;
         

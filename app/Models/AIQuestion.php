@@ -21,7 +21,7 @@ class AIQuestion extends Model
     'subject',
     'source',
     'duration',
-    'question',
+    'question_text',
     'option_a',
     'option_b',
     'option_c',

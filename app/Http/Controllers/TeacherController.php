@@ -8,6 +8,8 @@ use App\Models\TeacherQuestion;
 use App\Models\AIQuestion;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\User;
+use App\Models\ClassModel;
 use App\Models\QuizUser;
 use Illuminate\Support\Facades\DB;
 
@@ -29,47 +31,72 @@ class TeacherController extends Controller
 
     public function uploadCurriculumForm()
     {
-        $classes = ['BASIC 1', 'BASIC 2', 'BASIC 3', 'BASIC 4', 'BASIC 5', 'BASIC 6', 'SPECIAL CLASS', 'ENTRANCE', 'GENERAL', 'NURSERY 1', 'NURSERY 2', 'RECEPTION 1', 'RECEPTION 2', 'JAMB', 'WAEC', 'NECO', 'JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
-        $subjects = ['MATHEMATICS', 'ENGLISH', 'GEOMETRY', 'LITERATURE', 'SECURITY EDUCATION', 'NATIONAL VALUE', 'BASIC SCIENCE', 'LITERACY', 'NUMERACY', 'BASIC SCIENCE & TECH', 'COMPUTER STUDIES', 'FRENCH', 'PHONICS & DICTION', 'HANDWRITING', 'PREVOCATIONAL STUDIES', 'IGBO LANG', 'CRK', 'YORUBA', 'HISTORY', 'CHEMISTRY', 'PHYSICS', 'BIOLOGY', 'GEOGRAPHY', 'GOVERNMENT', 'ECONOMICS', 'FINANCIAL ACCOUNTING', 'COMMERCE', 'LITERATURE', 'ANIMAL HUSBANDRY'];
+        //$classes = ['BASIC 1', 'BASIC 2', 'BASIC 3', 'BASIC 4', 'BASIC 5', 'BASIC 6', 'SPECIAL CLASS', 'ENTRANCE', 'GENERAL', 'NURSERY 1', 'NURSERY 2', 'RECEPTION 1', 'RECEPTION 2', 'JAMB', 'WAEC', 'NECO', 'JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
+        //$subjects = ['MATHEMATICS', 'ENGLISH', 'GEOMETRY', 'LITERATURE', 'SECURITY EDUCATION', 'NATIONAL VALUE', 'BASIC SCIENCE', 'LITERACY', 'NUMERACY', 'BASIC SCIENCE & TECH', 'COMPUTER STUDIES', 'FRENCH', 'PHONICS & DICTION', 'HANDWRITING', 'PREVOCATIONAL STUDIES', 'IGBO LANG', 'CRK', 'YORUBA', 'HISTORY', 'CHEMISTRY', 'PHYSICS', 'BIOLOGY', 'GEOGRAPHY', 'GOVERNMENT', 'ECONOMICS', 'FINANCIAL ACCOUNTING', 'COMMERCE', 'LITERATURE', 'ANIMAL HUSBANDRY'];
+        // Fetch only active classes and subjects
+    $classes = ClassModel::orderBy('name')->get();
+    $subjects = Subject::orderBy('name')->get();
 
         return view('backend.teacher_questions.upload_curriculum', compact('classes', 'subjects'));
     }
 
-        public function uploadCurriculum(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'time' => 'required',
-            'subject' => 'required|string|max:255',
-            'class' => 'required|string|max:255',
-            'curriculum_file' => 'nullable|file|mimes:pdf,doc,docx|max:5120', // max 5MB
-            'curriculum_text' => 'nullable|string',
-            'scheme_of_work' => 'nullable|string',
-            'lesson_note' => 'nullable|string',
-        ]);
+       public function uploadCurriculum(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'time' => 'required',
+        'subject' => 'required|string|max:255',
+        'class' => 'required|string|max:255',
+        'curriculum_file' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+        'curriculum_text' => 'nullable|string',
+        'scheme_of_work' => 'nullable|string',
+        'lesson_note' => 'nullable|string',
+    ]);
 
-        // Handle file upload if exists
-        $filePath = null;
-        if ($request->hasFile('curriculum_file')) {
-            $filePath = $request->file('curriculum_file')->store('curriculums', 'public');
-        }
-
-        // Save curriculum
-        Curriculum::create([
-            'user_id' => auth()->id(), // Add this line to resolve the error
-            'name' => $request->name,
-            'time_left' => $request->time,
-            'subject' => $request->subject,
-            'class' => $request->class,
-            'file_path' => $filePath,
-            'content' => $request->curriculum_text ?? '',
-            'scheme_of_work' => $request->scheme_of_work ?? '',
-            'lesson_note' => $request->lesson_note ?? '',
-        ]);
-
-        //return redirect()->route('dashboard')->with('success', 'Curriculum uploaded successfully.');
-        return redirect()->back()->with('success', 'AI Question Curriculum Created Successfully');
+    // FILE UPLOAD
+    $filePath = null;
+    if ($request->hasFile('curriculum_file')) {
+        $filePath = $request->file('curriculum_file')->store('curriculums', 'public');
     }
+
+    // Create curriculum first
+$curriculum = Curriculum::create([
+    'user_id' => auth()->id(),
+    'curriculum_id' => null, // temporary placeholder
+    'name' => $request->name,
+    'time_left' => $request->time * 60,
+    'subject' => $request->subject,
+    'class' => $request->class,
+    'file_path' => $filePath,
+    'content' => $request->curriculum_text ?? '',
+    'scheme_of_work' => $request->scheme_of_work ?? '',
+    'lesson_note' => $request->lesson_note ?? '',
+]);
+
+// NOW update curriculum_id to match its own id
+$curriculum->update([
+    'curriculum_id' => $curriculum->id
+]);
+
+// Insert into quizzes using SAME curriculum_id
+\DB::table('quizzes')->insert([
+    'curriculum_id' => $curriculum->id,
+    'name' => $request->name,
+    'description' => $request->curriculum_text ?? '',
+    'class_id' => $request->class,
+    'subject_id' => $request->subject,
+    'sessions' => '1',
+    'terms' => '1',
+    'status' => 0,
+    'minutes' => $request->time,
+    'created_at' => now(),
+    'updated_at' => now(),
+]);
+
+
+    return redirect()->back()->with('success', 'AI Question Curriculum Created Successfully');
+}
+
 
    //The sets of methods controls the ai generated questions
      public function showQuestionGenerationForm()
@@ -243,13 +270,14 @@ class TeacherController extends Controller
         ->update(['duration' => $timeLimit]);
 
     // ✅ 3. Assign time to students in quiz_user table
-    $students = Student::where('status', 'ACTIVE')
+    $students = User::where('status', '1')
+                    ->where('category', 'Student')
                     ->where('class', $curriculum->class)
                     ->get();
 
     foreach ($students as $student) {
-        DB::table('quiz_user')->updateOrInsert(
-            ['quiz_id' => $curriculum->id, 'user_id' => $student->student_id],
+        DB::table('quiz_users')->updateOrInsert(
+            ['quiz_id' => $curriculum->id, 'user_id' => $student->id],
             ['status' => 0, 'time_left' => $timeLimit, 'updated_at' => $now, 'created_at' => $now]
         );
     }
@@ -281,5 +309,23 @@ class TeacherController extends Controller
 
         return view('backend.teacher_questions.show_maths', compact('questions', 'curriculum'));
     }
-    
+
+    public function deleteCurriculumQuestions($curriculum_id)
+{
+    try {
+        $curriculum = Curriculum::findOrFail($curriculum_id);
+
+        // Delete all AI questions for this curriculum
+        AIQuestion::where('curriculum_id', $curriculum_id)->delete();
+
+        // Delete the curriculum record itself
+        $curriculum->delete();
+
+        return redirect()->back()->with('message', 'Curriculum and all its AI questions deleted successfully!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to delete: ' . $e->getMessage());
+    }
+}
+
+
 }
