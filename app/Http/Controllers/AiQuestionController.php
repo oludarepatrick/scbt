@@ -57,7 +57,8 @@ public function testOpenRouter()
 
     $curriculum = Curriculum::findOrFail($request->curriculum_id);
 
-    $prompt = "Generate {$request->number} multiple-choice objective questions for "
+    $prompt = "Generate {$request->number} multiple-choice objective questions"
+            . "based on the {$curriculum->content} Lagos State, Nigeria school curriculum for "
             . "{$curriculum->class} level in the subject '{$curriculum->subject}'. "
             . "Each question should have 4 options labeled A, B, C, D, and indicate the correct answer. "
             . "Format:\n\n"

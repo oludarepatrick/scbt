@@ -52,7 +52,7 @@
 
                     <button type="button" id="nextBtn" class="btn btn-primary" disabled>Next</button>
 
-                    <a href="{{ route('quiz.finish', $quiz->id) }}" id="submitBtn" class="btn btn-danger" style="display: none;"
+                    <a href="{{ route('quiz.finish', $quiz->id) }}" id="submitBtn" class="btn btn-danger" onclick="disableExitProtection()" style="display: none;"
                     onclick="return confirm('Are you sure you want to submit?');">Submit Quiz</a>
                 </div>
             </form>
@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const newPage = currentPage + direction;
         if (newPage < 1) return;
         formData.set('page', newPage);
+
+        // ✅ Save time during NEXT/PREV navigation
+    formData.append('time_left', totalSeconds);
 
         fetch("{{ route('quiz.next', $quiz->id) }}", {
             method: "POST",

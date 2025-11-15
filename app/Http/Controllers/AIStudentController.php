@@ -264,8 +264,8 @@ public function next(Request $request, $quiz_id)
 
 
 
-
-    public function nextAjax(Request $request, $quizUserId)
+// Working but not saving time left
+    /*public function nextAjax(Request $request, $quizUserId)
     {
         try {
         if (!$request->ajax()) {
@@ -324,7 +324,77 @@ public function next(Request $request, $quiz_id)
                 'trace' => $e->getTraceAsString()
             ], 500);
         }
+    }*/
+
+        public function nextAjax(Request $request, $quizUserId)
+{
+    try {
+        if (!$request->ajax()) {
+            return response()->json(['error' => 'Bad request'], 400);
+        }
+
+        $userId = auth()->id();
+        $page = $request->input('page', 1);
+        $perPage = 3;
+        $answers = $request->input('answers', []);
+        $testSessionId = $request->input('test_session_id');
+
+        // ✅ NEW (Save remaining time)
+        if ($request->has('time_left')) {
+            QuizUser::where('id', $quizUserId)
+                ->where('user_id', $userId)
+                ->update(['time_left' => $request->input('time_left')]);
+        }
+
+        // Save answers
+        foreach ($answers as $questionId => $answerOption) {
+            StudentAnswer::updateOrCreate(
+                [
+                    'quiz_id' => $quizUserId,
+                    'user_id' => $userId,
+                    'question_id' => $questionId,
+                    'test_session_id' => $testSessionId
+                ],
+                [
+                    'answer_option' => $answerOption,
+                    'question_type' => 'ai'
+                ]
+            );
+        }
+
+        $quiz = QuizUser::with('curriculum')->where('id', $quizUserId)->where('user_id', $userId)->first();
+        $curriculum = $quiz->curriculum;
+
+        $questions = $curriculum->aiQuestions()
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage + 1)
+            ->get();
+
+        $hasMore = $questions->count() > $perPage;
+        $questions = $questions->take($perPage);
+
+        $studentAnswers = $quiz->studentAnswers()
+            ->where('user_id', $userId)
+            ->pluck('answer_option', 'question_id');
+
+        $html = view('student.partials.quiz_batch', compact('questions', 'studentAnswers', 'page', 'hasMore', 'quiz'))->render();
+
+        return response()->json([
+            'success' => true,
+            'html' => $html,
+            'nextPage' => $page + 1,
+            'hasMore' => $hasMore
+        ]);
+
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => true,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
     }
+}
+
 
 
     public function saveTime(Request $request, $id) // here, $id is quiz_users.id

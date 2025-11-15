@@ -42,3 +42,26 @@
         No questions available for this quiz.
     </div>
 @endif
+
+
+
+<script>
+
+// 1. BLOCK accidental closing of page
+window.onbeforeunload = function() {
+    return "Are you sure you want to leave the quiz?";
+};
+
+// 2. Detect switching tabs or opening new tab
+document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+        alert("⚠ You switched tabs! Stay on the quiz page. Are you trying to check Answer Online? We are monitoring you. YOUR MARK WILL BE DEDUCTED!");
+    }
+});
+
+// 3. Disable warning only after submission
+function disableExitProtection() {
+    window.onbeforeunload = null;
+}
+
+</script>
