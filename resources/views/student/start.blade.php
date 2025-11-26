@@ -52,7 +52,7 @@
 
                     <button type="button" id="nextBtn" class="btn btn-primary" disabled>Next</button>
 
-                    <a href="{{ route('quiz.finish', $quiz->id) }}" id="submitBtn" class="btn btn-danger" onclick="disableExitProtection()" style="display: none;"
+                    <a href="{{ route('quiz.finish', $quiz->id) }}" id="submitBtn" class="btn btn-danger" style="display: none;"
                     onclick="return confirm('Are you sure you want to submit?');">Submit Quiz</a>
                 </div>
             </form>
@@ -100,7 +100,28 @@ document.addEventListener('DOMContentLoaded', function () {
             clearInterval(countdownInterval);
             alert('Time is up! Submitting quiz...');
             // Option: call finish endpoint via AJAX instead of form.submit() to avoid losing CSRF/session state
-            form.submit();
+            //form.submit();
+
+            fetch("{{ route('quiz.finish.post', $quizUser->id) }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.href = "{{ route('ai.dashboard') }}";
+                    }
+                })
+                .catch(() => window.location.href = "{{ route('ai.dashboard') }}");
+
+           
+
         }
     }, 1000);
 
@@ -121,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Remove autosave when leaving (optional)
     window.addEventListener('beforeunload', function () {
-        navigator.sendBeacon("{{ route('quiz.saveTime2') }}", JSON.stringify({
+        navigator.sendBeacon("{{ route('quiz.saveTime') }}", JSON.stringify({
             quiz_user_id: quizUserId,
             time_left: timeLeft
         }));
@@ -197,6 +218,47 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     checkAnswersSelected();
+
+    //Submit event listener
+    submitBtn.addEventListener('click', function (e) {
+    e.preventDefault(); // stop direct navigation
+
+    if (!confirm('Are you sure you want to submit your exam?')) return;
+
+    // Save time + answers from the current page before submission
+    const formData = new FormData(form);
+    formData.set('time_left', timeLeft);
+
+    fetch("{{ route('quiz.next', $quiz->id) }}", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: formData
+    })
+    .finally(() => {
+        // Now finish exam
+        fetch("{{ route('quiz.finish.post', $quizUser->id) }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.href = "{{ route('ai.dashboard') }}";
+            }
+        })
+        .catch(() => window.location.href = "{{ route('ai.dashboard') }}");
+    });
+});
+
 });
 </script>
 @endsection

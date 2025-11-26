@@ -43,9 +43,3 @@
     </div>
 @endif
 
-
-
-<script>
-
-
-</script>

@@ -13,7 +13,7 @@
                 </td>
             </tr>
             <tr>
-                <th>S/N</th><th>Student's ID</th><th>Name In Full</th>
+                <th>S/N</th><th>Student's ID</th><th>Fullname</th>
                 <?php if($armId=='optional'){ ?>
                     <th>Arm</th>
                 <?php } ?>
@@ -28,7 +28,7 @@
                     <?php if($armId=='optional'){ ?>
                         <td>{{ $stud->class_division }}</td>
                     <?php } ?>
-                    <td><input type='checkbox' checked value="{{  $stud->sn }}" name='mystud[]'></td>
+                    <td><input type='checkbox' checked value="{{  $stud->id }}" name='mystud[]'></td>
                 </tr>
             @endforeach
         </table>

@@ -17,7 +17,7 @@
             <tr>
                 <th>S/N</th>
                 <th>Student's ID</th>
-                <th>Name In Full</th>
+                <th>Full Name</th>
                 <th>Class</th>
                 <th>Action</th>
             </tr>

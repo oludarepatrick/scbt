@@ -230,28 +230,17 @@ Route::middleware(['auth'])->prefix('ai')->group(function () {
 
     Route::get('/dashboard', [AIStudentController::class, 'dashboard'])->name('ai.dashboard');
     Route::get('/quizzes', [AIStudentController::class, 'showAvailableQuizzes'])->name('ai.quizzes');
-
-    Route::get('/quiz/{quizId}/start', [AIStudentController::class, 'start'])
-        ->name('ai.quiz.start');
-
-    Route::post('/quiz/{quizUser}/submit', [AIStudentController::class, 'submit'])
-        ->name('quiz.submit');
-
-    Route::post('/quiz/{quizUser}/next', [AIStudentController::class, 'nextAjax'])
-        ->name('quiz.next');
+    Route::get('/quiz/{quizId}/start', [AIStudentController::class, 'start'])->name('ai.quiz.start');
+    Route::post('/quiz/{quizUser}/submit', [AIStudentController::class, 'submit'])->name('quiz.submit');
+    Route::post('/quiz/{quizUser}/next', [AIStudentController::class, 'nextAjax'])->name('quiz.next');
 
     //Route::post('/quiz/save-time/{quizUser}', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
     Route::post('/quiz/save-time', [AIStudentController::class, 'saveTime'])->name('quiz.saveTime');
-
     //Route::post('/quiz/{id}/save-time', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
+    Route::get('/quiz-user/{quizUser}/finish', [AIStudentController::class, 'finish'])->name('quiz.finish');
+    Route::get('/quiz-user/{quizUser}/result', [AIStudentController::class, 'result'])->name('quiz.result');
+    Route::get('/quiz-user/{quizUser}/result/pdf', [AIStudentController::class, 'exportResultPdf'])->name('quiz.result.pdf');
+    // routes/web.php (inside your auth group)
+    Route::post('/quiz-user/{quizUser}/finish', [AIStudentController::class, 'finish'])->name('quiz.finish.post');
 
-
-    Route::get('/quiz-user/{quizUser}/finish', [AIStudentController::class, 'finish'])
-        ->name('quiz.finish');
-
-    Route::get('/quiz-user/{quizUser}/result', [AIStudentController::class, 'result'])
-        ->name('quiz.result');
-
-    Route::get('/quiz-user/{quizUser}/result/pdf', [AIStudentController::class, 'exportResultPdf'])
-        ->name('quiz.result.pdf');
 });

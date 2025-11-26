@@ -66,20 +66,31 @@ public function testOpenRouter()
             . "A) ...\nB) ...\nC) ...\nD) ...\n"
             . "Correct Answer: <Letter>\n\n";
 
-        $response = Http::withOptions(['verify' => false])
-        ->withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-            'HTTP-Referer' => 'http://127.0.0.1:8000/',
-        ])
-        ->timeout(120)
-        ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'openai/gpt-3.5-turbo',
-        'messages' => [
-            ['role' => 'user', 'content' => $prompt],
-        ],
-    ]);
-
-    $data = $response->json();
+            $response = Http::withOptions(['verify' => false])
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+                'HTTP-Referer'  => 'https://schooldrive.com.ng',   // MUST be a real URL
+                'X-Title'       => 'SchoolDrive CBT AI Generator'
+            ])
+            ->timeout(120)
+            ->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model' => 'openai/gpt-4o-mini', // updated – gpt-3.5 no longer exists
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt],
+                ],
+            ]);
+        
+        $data = $response->json();
+        
+        // Log full API error for debugging
+        if ($response->failed()) {
+            \Log::error("OpenRouter error", [
+                'status' => $response->status(),
+                'body'   => $response->body()
+            ]);
+            return back()->with('error', 'AI generation failed. Check logs.');
+        }
+        
 
     if (!isset($data['choices'][0]['message']['content'])) {
         return back()->with('error', 'Failed to generate questions.');

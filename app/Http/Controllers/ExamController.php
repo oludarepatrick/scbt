@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Quiz;
 use App\Models\Question;
+use App\Models\AIQuestion;
+use App\Models\StudentAnswer;
 use App\Models\Result;
 use App\Models\User;
 use App\Models\{Answer,SchoolInfo};
@@ -59,6 +61,10 @@ class ExamController extends Controller
     {
         $quiz = Quiz::findOrFail($request->quizId);
 
+         // Multiply to Convert time to minutes when assigning quiz to user       
+         $quizTime = $quiz->minutes;
+         $timer = $quizTime * 60;
+
         foreach ($request->mystud as $stud_id) {
             QuizUser::updateOrCreate(
                 [
@@ -67,7 +73,7 @@ class ExamController extends Controller
                 ],
                 [
                     'curriculum_id' => $quiz->curriculum_id, // ADD THIS
-                    'time_left' => $quiz->minutes,
+                    'time_left' => $timer,
                     'status' => '0',
                 ]
             );
@@ -78,29 +84,76 @@ class ExamController extends Controller
 
 
     
+    /*public function saveReAssigning(Request $request)
+    {
+        foreach ($request->mystud as $stud_id) {
+
+            $quizTime = Quiz::where('id', $request->quizId)->value('minutes');
+            $timer = $quizTime * 60 * 1000;
+
+            DB::table('quiz_users')
+                ->where('user_id', $stud_id)
+                ->where('quiz_id', $request->quizId)
+                ->update([
+                    'time_left' => $timer,
+                    'status' => 0, // reset to not started
+                    'started_at' => null,
+                    'submitted_at' => null,
+                    'updated_at' => now(),
+                ]);
+        }
+
+        return redirect()->back()->with('message', 'Exam successfully Re-Assigned!');
+    }*/
+
     public function saveReAssigning(Request $request)
 {
+    if (empty($request->mystud) || !is_array($request->mystud)) {
+        return redirect()->back()->with('error', 'No students selected for reassignment!');
+    }
+
     foreach ($request->mystud as $stud_id) {
 
-        $quizTime = Quiz::where('id', $request->quizId)->value('minutes');
-        $timer = $quizTime * 60 * 1000;
+        $stud_id = (int) $stud_id;
+        if ($stud_id <= 0) continue; // skip invalid IDs
 
-        DB::table('quiz_users')
-            ->where('user_id', $stud_id)
+        // Get quiz info
+        $quiz = Quiz::find($request->quizId);
+        if (!$quiz) continue;
+
+        $quizTime = $quiz->minutes;
+        $timer = $quizTime * 60;
+
+        // Delete all previous answers
+        DB::table('student_answers')
             ->where('quiz_id', $request->quizId)
-            ->update([
-                'time_left' => $timer,
-                'status' => 0, // reset to not started
-                'started_at' => null,
-                'submitted_at' => null,
-                'updated_at' => now(),
-            ]);
+            ->where('user_id', $stud_id)
+            ->delete();
+
+        // Delete old quiz_users record
+        DB::table('quiz_users')
+            ->where('quiz_id', $request->quizId)
+            ->where('user_id', $stud_id)
+            ->delete();
+
+        // Insert fresh quiz_users row with curriculum_id
+        DB::table('quiz_users')->insert([
+            'quiz_id'      => $request->quizId,
+            'curriculum_id'=> $quiz->curriculum_id, // added this line
+            'user_id'      => $stud_id,
+            'time_left'    => $timer,
+            'status'       => 0,
+            'started_at'   => null,
+            'submitted_at' => null,
+            'created_at'   => now(),
+            'updated_at'   => now(),
+        ]);
     }
 
     return redirect()->back()->with('message', 'Exam successfully Re-Assigned!');
 }
 
-
+    
 
     /**
      * Display the specified resource.
@@ -194,12 +247,19 @@ public function viewResult($userId,$quizId){
     return view('result-detail',compact('results'));
 }
 
-public function result(){
-    //$quizzes = Quiz::get();
-    $data['classes']=ClassModel::all();
-    
-     
+public function result()
+{
+    //$data['classes'] = ClassModel::all();
 
+    $data['classes'] = User::select('class')
+        ->whereNotNull('class')
+        ->distinct()
+        ->pluck('class');
+
+    $data['arms'] = User::select('class_division')
+        ->whereNotNull('class_division')
+        ->distinct()
+        ->pluck('class_division');
 
     return view('backend.exam.view-result', $data);
 }
@@ -300,7 +360,7 @@ public function userQuizResult($userId,$quizId){
                     ->where('status', '1')
                     ->where('category', 'Student')
                     ->where('session', $activeSes)
-                    ->whereIn('sn', 
+                    ->whereIn('id', 
                         QuizUser::where('quiz_id', $request->quizId)->get(['user_id'])
                     )
                     ->get([
@@ -372,6 +432,103 @@ public function loadQuizes2(Request $request)
     }
     
     public function showResult(Request $request)
+{
+    $armId     = $request->arm;
+    $quizId    = $request->quiz;
+    $className = $request->classname;
+
+    // Get all students who participated
+    $studentIds = QuizUser::where('quiz_id', $quizId)
+        ->pluck('user_id')
+        ->toArray();
+
+    if (empty($studentIds)) {
+        return "<h2>No Available Result</h2>";
+    }
+
+    // Fetch student data
+    $students = User::whereIn('id', $studentIds)
+        ->where('class', $className)
+        ->when($armId !== "optional", function ($q) use ($armId) {
+            $q->where('class_division', $armId);
+        })
+        ->get(['id', 'firstname', 'lastname', 'class']);
+
+    if ($students->isEmpty()) {
+        return "<h2>No Available Result</h2>";
+    }
+
+    // TOTAL QUESTIONS → derived from student_answers
+    $totalQuestions = StudentAnswer::where('quiz_id', $quizId)
+        ->distinct()
+        ->count('question_id');
+
+    if ($totalQuestions == 0) {
+        return "<h2>No questions found for this quiz</h2>";
+    }
+
+    $resultsArray = [];
+
+    foreach ($students as $student) {
+
+        // ----------------------------------------------
+        // ⭐ DYNAMIC CORRECTNESS COMPUTATION (NO is_correct)
+        // ----------------------------------------------
+        $studentAnswers = StudentAnswer::where('quiz_id', $quizId)
+            ->where('user_id', $student->id)
+            ->get();
+
+        $correct = 0;
+
+        foreach ($studentAnswers as $ans) {
+
+            $question = AIQuestion::find($ans->question_id);
+
+            if (!$question) {
+                continue;
+            }
+
+            // Compare student answer with correct option
+            if (
+                strtoupper(trim($ans->answer_option)) === 
+                strtoupper(trim($question->correct_option))
+            ) {
+                $correct++;
+            }
+        }
+        // ----------------------------------------------
+
+        // Percentage
+        $percentage = $correct > 0
+            ? round(($correct / $totalQuestions) * 100, 2)
+            : 0;
+
+        $resultsArray[] = [
+            'user_id'    => $student->id,
+            'name'       => $student->firstname . ' ' . $student->lastname,
+            'class'      => $student->class,
+            'score'      => $correct,
+            'total'      => $totalQuestions,
+            'percentage' => $percentage,
+        ];
+    }
+
+    // Get quiz title
+    $quizTitle = Quiz::where('id', $quizId)->value('name');
+
+    return view('backend.exam.dispalyAll', [
+        'students'   => $resultsArray,
+        'class'      => $className,
+        'arm'        => $armId,
+        'quizTitle'  => $quizTitle,
+    ]);
+}
+
+
+
+
+    //Old result view
+    /*public function showResult(Request $request)
     {
         //ini_set('display_errors', 1);
         $armId=$request->arm;
@@ -388,7 +545,7 @@ public function loadQuizes2(Request $request)
                     ->where('class_division',$armId)
                     ->where('status', 'Active')
                     ->where('session', $activeSes)
-                    ->whereIn('sn', 
+                    ->whereIn('id', 
                         QuizUser::select('user_id')->distinct()->where('quiz_id', $quizId)->get(['user_id'])
                     )
                     ->get([
@@ -461,5 +618,5 @@ public function loadQuizes2(Request $request)
             echo "<h2>No Available Result<h2>";
         }
         
-    }
+    }*/
 }

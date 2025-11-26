@@ -32,7 +32,32 @@ class AIStudentController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
-   public function dashboard()
+    /*public function dashboard()
+    {
+        $student = Auth::user();
+    
+        // Get assigned quizzes with relationships
+        $assignments = QuizUser::where('user_id', $student->id)
+            ->with(['quiz.curriculum.aiQuestions'])
+            ->get();
+    
+        // Map to quizzes
+        $quizzes = $assignments->map(function ($assignment) {
+        $quiz = $assignment->quiz;
+    
+        if ($quiz) {
+            $quiz->status = $assignment->status;
+            $quiz->time_left = $assignment->time_left;
+            $quiz->quiz_id = $assignment->id;  // <-- Add this
+        }
+    
+            return $quiz;
+        });
+    
+        return view('student.index', compact('quizzes'));
+    }*/
+
+    public function dashboard()
 {
     $student = Auth::user();
 
@@ -43,20 +68,21 @@ class AIStudentController extends Controller
 
     // Map to quizzes
     $quizzes = $assignments->map(function ($assignment) {
-    $quiz = $assignment->quiz;
-
-    if ($quiz) {
-        $quiz->status = $assignment->status;
-        $quiz->time_left = $assignment->time_left;
-        $quiz->quiz_id = $assignment->id;  // <-- Add this
-    }
-
-        return $quiz;
-    });
+        $quiz = $assignment->quiz;
+    
+        if ($quiz) {
+            $quiz->status = $assignment->status;
+            $quiz->time_left = $assignment->time_left ?? ($quiz->minutes * 60);
+            $quiz->quiz_user_id = $assignment->id; // preserve for actions
+            return $quiz;
+        }
+    
+        return null;
+    })->filter(); // <-- remove nulls
+    
 
     return view('student.index', compact('quizzes'));
 }
-
 
 
     public function showAvailableQuizzes()
@@ -204,14 +230,27 @@ class AIStudentController extends Controller
     }
 
 
-    public function finish(QuizUser $quizUser)
-    {
-        $quizUser->status = 2; // Mark as completed
-        $quizUser->updated_at = now();
-        $quizUser->save();
-
-        return redirect()->route('quiz.result', $quizUser->id);
+    public function finish(Request $request, QuizUser $quizUser)
+{
+    if ($quizUser->status != 2) {
+        $quizUser->update([
+            'status' => 2,
+            'ended_at' => now(),
+            'time_left' => 0,
+        ]);
     }
+
+    if ($request->ajax() || $request->isMethod('post')) {
+        return response()->json([
+            'success' => true,
+            'redirect' => route('quiz.result', $quizUser->id)
+        ]);
+    }
+
+    return redirect()->route('quiz.result', $quizUser->id);
+}
+
+    
 
 
 public function next(Request $request, $quiz_id)

@@ -28,7 +28,8 @@
                                     <select name="arm" class="filter form-control @error('arm') is-invalid @enderror span6" id="armId">
                                         <option value="optional">-Select Arm (Optional)-</option>
                                         @foreach($arms as $arm)
-                                            <option value="{{$arm->division}}">{{$arm->division}}</option>
+                                        <option value="{{ $arm }}">{{ $arm }}</option>
+
                                         @endforeach
                                     </select>
                                     @error('arm')
@@ -42,8 +43,8 @@
                                     <label class="form-label">Select Class</label>
                                     <select name="classname" class="filter form-control @error('classname') is-invalid @enderror span6" onChange="displaySubject(this.value)" id="classId">
                                         <option>Select Class</option>
-                                        @foreach($classes as $class)
-                                            <option value="{{$class->class}}">{{$class->class}}</option>
+                                        @foreach($classes as $classe)
+                                            <option value="{{$classe}}">{{$classe}}</option>
                                         @endforeach
                                     </select>
                                     @error('classname')
@@ -105,7 +106,7 @@
 
         var data ='_token={{csrf_token()}}&armId='+armId+'&cId='+value;
 
-        req.open('POST', 'loadsquizes2', true); // set the request
+        req.open('POST', 'loadsquizes', true); // set the request
 
         //adds header for POST request
         req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
