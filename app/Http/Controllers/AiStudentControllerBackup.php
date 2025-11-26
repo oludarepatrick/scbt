@@ -147,14 +147,9 @@ class AIStudentController extends Controller
 
     //$studentAnswers = StudentAnswer::where('user_id', $userId)->where('test_session_id', $quizUser->id)->pluck('answer_option', 'question_id');
     $studentAnswers = StudentAnswer::where('test_session_id', $quizUser->id)->where('user_id', $quizUser->user_id)->pluck('answer_option', 'question_id');
-    $secondsLeft = $quizUser->time_left ?? ($quiz->minutes * 60);
 
-    return view('student.start', compact(
-        'quiz', 'curriculum', 'questions',
-        'page', 'hasMore', 'studentAnswers',
-        'quizUser', 'secondsLeft'
-    ));
-    //return view('student.start', compact('quiz', 'curriculum', 'questions', 'page', 'hasMore', 'studentAnswers', 'quizUser'));
+
+    return view('student.start', compact('quiz', 'curriculum', 'questions', 'page', 'hasMore', 'studentAnswers', 'quizUser'));
 }
 
 
@@ -228,17 +223,20 @@ public function next(Request $request, $quiz_id)
     // Save answers
     $answers = $request->input('answers', []);
     foreach ($answers as $questionId => $answerOption) {
-        StudentAnswer::updateOrCreate([
-            'test_session_id' => $quizUser->id,
-            'user_id'         => $quizUser->user_id,
-            'question_id'     => $questionId
-        ], [
-            'quiz_id'        => $quizUser->quiz_id,
-            'answer_option'  => $answerOption,
-            'question_type'  => 'ai'
-        ]);
+        foreach ($answers as $questionId => $answerOption) {
+            StudentAnswer::updateOrCreate([
+                'test_session_id' => $quizUser->id,
+                'user_id' => $quizUser->user_id,
+                'question_id' => $questionId
+            ], [
+                'quiz_id' => $quizUser->quiz_id,
+                'answer_option' => $answerOption,
+                'question_type' => 'ai'
+            ]);
+        }
+        
+
     }
-    
 
     // Save remaining time if sent
     if ($request->filled('time_left')) {
@@ -356,7 +354,7 @@ public function next(Request $request, $quiz_id)
 
 
 
-    /*public function saveTime2(Request $request, $id) // here, $id is quiz_users.id
+    public function saveTime(Request $request, $id) // here, $id is quiz_users.id
     {
         $userId = auth()->id();
         $timeLeft = $request->input('time_left');
@@ -371,7 +369,7 @@ public function next(Request $request, $quiz_id)
         $quiz->save();
 
         return response()->json(['status' => 'saved']);
-    }*/
+    }
 
     public function result($quizId)
     {
@@ -429,28 +427,6 @@ public function next(Request $request, $quiz_id)
 
         return $pdf->download("quiz_result_{$quiz->id}.pdf");
     }
-
-    public function saveTime(Request $request)
-    {
-        $userId = auth()->id();
-        $quizUserId = $request->input('quiz_user_id');
-        $timeLeft = (int) $request->input('time_left');
-
-        $quizUser = QuizUser::where('id', $quizUserId)
-            ->where('user_id', $userId)
-            ->first();
-
-        if (!$quizUser) {
-            return response()->json(['success' => false, 'message' => 'Session not found']);
-        }
-
-        $quizUser->time_left = $timeLeft;
-        $quizUser->save();
-
-        return response()->json(['success' => true]);
-    }
-
-
 
 }
 

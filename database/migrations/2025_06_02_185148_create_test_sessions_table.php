@@ -22,6 +22,7 @@ class CreateTestSessionsTable extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->integer('score')->default(0);
+            $table->integer('time_left')->nullable();
             $table->timestamps();
         });
     }

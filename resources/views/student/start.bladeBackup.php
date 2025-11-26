@@ -61,51 +61,44 @@
 </div>
 
 @php
-    // Use QuizUser saved time_left if available, otherwise use quiz minutes or curriculum default (minutes -> seconds)
-    $defaultMinutes = $quiz->minutes ?? $curriculum->time ?? 15;
-    $secondsLeft = isset($quizUser->time_left) && is_numeric($quizUser->time_left)
-        ? (int) $quizUser->time_left
-        : ($defaultMinutes * 60);
+    $secondsLeft = isset($quiz->time_left) ? (int) $quiz->time_left : $quizDuration * 60;
 @endphp
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const form = document.getElementById('quizForm');
     const quizContainer = document.getElementById('quiz-container');
     const pageInput = form.querySelector('input[name="page"]');
     const nextBtn = document.getElementById('nextBtn');
     const prevBtn = document.getElementById('prevBtn');
     const submitBtn = document.getElementById('submitBtn');
+
+    //-----------------------------------------
+    // 1. RESTORE TIME FROM DATABASE
+    //-----------------------------------------
+    let timeLeft = parseInt("{{ $quizUser->time_left }}");
+    let quizUserId = "{{ $quizUser->id }}";
     const timerDisplay = document.getElementById('timer');
 
-    // Single authoritative time variable (seconds)
-    let timeLeft = {{ $secondsLeft }};
-    const quizUserId = "{{ $quizUser->id }}";
-    const quizId = "{{ $quiz->id }}"; // used in next route param
-
-    // UI update
-    function renderTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerDisplay.innerText = `Time Left: ${minutes}m ${seconds}s`;
-    }
-    renderTimer();
-
-    // Count down every second
-    const countdownInterval = setInterval(() => {
+    //-----------------------------------------
+    // 2. COUNTDOWN + DISPLAY
+    //-----------------------------------------
+    setInterval(() => {
         if (timeLeft > 0) {
             timeLeft--;
-            renderTimer();
+            timerDisplay.innerText =
+                `Time Left: ${Math.floor(timeLeft/60)}m ${timeLeft%60}s`;
         } else {
-            clearInterval(countdownInterval);
-            alert('Time is up! Submitting quiz...');
-            // Option: call finish endpoint via AJAX instead of form.submit() to avoid losing CSRF/session state
-            form.submit();
+            alert("Time is up! Submitting quiz...");
+            document.getElementById('quizForm').submit();
         }
     }, 1000);
 
-    // Auto-save time to server every 10 seconds
-    const autosaveInterval = setInterval(() => {
+    //-----------------------------------------
+    // 3. AUTO-SAVE TIME TO SERVER
+    //-----------------------------------------
+    setInterval(() => {
         fetch("{{ route('quiz.saveTime') }}", {
             method: "POST",
             headers: {
@@ -116,27 +109,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 quiz_user_id: quizUserId,
                 time_left: timeLeft
             })
-        }).catch(err => console.error('Failed saving time', err));
+        });
     }, 10000);
 
-    // Remove autosave when leaving (optional)
-    window.addEventListener('beforeunload', function () {
-        navigator.sendBeacon("{{ route('quiz.saveTime2') }}", JSON.stringify({
-            quiz_user_id: quizUserId,
-            time_left: timeLeft
-        }));
-    });
-
-    // Page loader (next/prev) - single place that saves time and loads page content
+    //-----------------------------------------
+    // 4. LOAD NEXT/PREV + SAVE TIME
+    //-----------------------------------------
     function loadPage(direction) {
         const formData = new FormData(form);
         const currentPage = parseInt(formData.get('page'));
         const newPage = currentPage + direction;
         if (newPage < 1) return;
-        formData.set('page', newPage);
 
-        // append authoritative time_left
-        formData.set('time_left', timeLeft);
+        formData.set('page', newPage);
+        formData.append('time_left', timeLeft);
 
         fetch("{{ route('quiz.next', $quiz->id) }}", {
             method: "POST",
@@ -157,46 +143,41 @@ document.addEventListener('DOMContentLoaded', function () {
                 const start = (newPage - 1) * perPage + 1;
                 const end = Math.min(start + perPage - 1, total);
 
-                document.getElementById('questionRange').innerText = `Question ${start} - ${end} of ${total}`;
+                document.getElementById('questionRange').innerText =
+                    `Question ${start} - ${end} of ${total}`;
 
                 nextBtn.style.display = (end < total) ? 'inline-block' : 'none';
                 prevBtn.style.display = newPage > 1 ? 'inline-block' : 'none';
                 submitBtn.style.display = (end >= total) ? 'inline-block' : 'none';
 
                 nextBtn.disabled = true;
+
                 setTimeout(checkAnswersSelected, 100);
-            } else {
-                alert("Error loading questions.");
             }
-        })
-        .catch(err => {
-            console.error("AJAX error", err);
-            alert("An error occurred.");
         });
     }
 
-    nextBtn.addEventListener('click', function () { loadPage(1); });
-    prevBtn.addEventListener('click', function () { loadPage(-1); });
+    nextBtn.addEventListener('click', () => loadPage(1));
+    prevBtn.addEventListener('click', () => loadPage(-1));
 
-    // check answers selection
+    //-----------------------------------------
+    // 5. ENABLE / DISABLE NEXT BUTTON
+    //-----------------------------------------
     function checkAnswersSelected() {
         const questions = quizContainer.querySelectorAll('[data-question-id]');
         let allAnswered = true;
         questions.forEach(q => {
-            const options = q.querySelectorAll('input[type="radio"]');
-            const answered = Array.from(options).some(opt => opt.checked);
-            if (!answered) allAnswered = false;
+            const opts = q.querySelectorAll('input[type="radio"]');
+            if (!Array.from(opts).some(o => o.checked)) {
+                allAnswered = false;
+            }
         });
         nextBtn.disabled = !allAnswered;
     }
 
-    quizContainer.addEventListener('change', function (e) {
-        if (e.target.matches('input[type="radio"]')) {
-            checkAnswersSelected();
-        }
-    });
-
+    quizContainer.addEventListener('change', checkAnswersSelected);
     checkAnswersSelected();
+
 });
 </script>
 @endsection

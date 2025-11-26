@@ -240,8 +240,11 @@ Route::middleware(['auth'])->prefix('ai')->group(function () {
     Route::post('/quiz/{quizUser}/next', [AIStudentController::class, 'nextAjax'])
         ->name('quiz.next');
 
-    Route::post('/quiz/save-time/{quizUser}', [AIStudentController::class, 'saveTime'])
-        ->name('quiz.save_time');
+    //Route::post('/quiz/save-time/{quizUser}', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
+    Route::post('/quiz/save-time', [AIStudentController::class, 'saveTime'])->name('quiz.saveTime');
+
+    //Route::post('/quiz/{id}/save-time', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
+
 
     Route::get('/quiz-user/{quizUser}/finish', [AIStudentController::class, 'finish'])
         ->name('quiz.finish');

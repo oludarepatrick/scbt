@@ -11,7 +11,7 @@ class TestSession extends Model
 
     protected $fillable = [
         'user_id', 'subject', 'class', 'num_questions',
-        'started_at', 'ended_at', 'score'
+        'started_at', 'ended_at', 'score', 'time_left',
     ];
 
     public function user()
