@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AIQuestion extends Model
+class AiQuestion extends Model
 {
     protected $table = 'ai_questions';
     use HasFactory;
