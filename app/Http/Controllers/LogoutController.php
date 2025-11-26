@@ -18,7 +18,7 @@ class LogoutController extends Controller
         //local
         //return redirect()->intended('http://127.0.0.1:8000/login');
         //Live
-        return redirect()->intended('http://34.68.228.210/login');
+        return redirect()->intended('http://34.68.228.210/ai-login');
         
         // if($userType=="Student")
         // {
