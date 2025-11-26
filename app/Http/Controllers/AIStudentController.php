@@ -9,7 +9,7 @@ use App\Models\Curriculum;
 use DB;
 use App\Models\QuizUser;
 use App\Models\Quiz;
-use App\Models\AIQuestion;
+use App\Models\AiQuestion;
 use App\Models\StudentAnswer;
 use App\Models\TestSession;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -163,7 +163,7 @@ class AIStudentController extends Controller
     $curriculum = Curriculum::findOrFail($quiz->curriculum_id);
 
     // Load questions for this curriculum
-    $questions = AIQuestion::where('curriculum_id', $curriculum->id)
+    $questions = AiQuestion::where('curriculum_id', $curriculum->id)
         ->skip(($page - 1) * $perPage)
         ->take($perPage + 1)
         ->get();
@@ -211,7 +211,7 @@ class AIStudentController extends Controller
             ->count();
 
         // Total number of AI questions in this curriculum/quiz
-        $totalQuestions = AIQuestion::where('curriculum_id', $quizUser->quiz_id)->count();
+        $totalQuestions = AiQuestion::where('curriculum_id', $quizUser->quiz_id)->count();
 
         // If all questions are answered, redirect to finish page
         if ($answeredCount >= $totalQuestions) {
@@ -219,7 +219,7 @@ class AIStudentController extends Controller
         }
 
         // Get next unanswered question
-        $nextQuestion = AIQuestion::where('curriculum_id', $quizUser->quiz_id)
+        $nextQuestion = AiQuestion::where('curriculum_id', $quizUser->quiz_id)
             ->whereNotIn('id', StudentAnswer::where('quiz_id', $quizUser->quiz_id)
                 ->where('user_id', $quizUser->user_id)
                 ->pluck('question_id'))

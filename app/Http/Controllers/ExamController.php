@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Quiz;
 use App\Models\Question;
-use App\Models\AIQuestion;
+use App\Models\AiQuestion;
 use App\Models\StudentAnswer;
 use App\Models\Result;
 use App\Models\User;
@@ -482,7 +482,7 @@ public function loadQuizes2(Request $request)
 
         foreach ($studentAnswers as $ans) {
 
-            $question = AIQuestion::find($ans->question_id);
+            $question = AiQuestion::find($ans->question_id);
 
             if (!$question) {
                 continue;
