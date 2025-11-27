@@ -9,7 +9,7 @@
         <link type="text/css" href="{{asset('edmin/code/bootstrap/css/bootstrap-responsive.min.css')}}" rel="stylesheet">
         <link type="text/css" href="{{asset('edmin/code/css/theme.css')}}" rel="stylesheet">
         <link type="text/css" href="{{asset('edmin/code/images/icons/css/font-awesome.css')}}" rel="stylesheet">
-        <link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600'
+        <link type="text/css" href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600'
             rel='stylesheet'>
     </head>
     <body>
