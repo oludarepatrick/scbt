@@ -720,6 +720,11 @@
         'channel' => NULL,
       ),
     ),
+    'openrouter' => 
+    array (
+      'api_key' => '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',
+      'referer' => 'http://localhost',
+    ),
     'gemini' => 
     array (
       'api_key' => 'AIzaSyDozEkNXuLFlY1ikNxQU8vFdM-5FuhuMRk',

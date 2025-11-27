@@ -66,12 +66,19 @@ public function testOpenRouter()
             . "A) ...\nB) ...\nC) ...\nD) ...\n"
             . "Correct Answer: <Letter>\n\n";
 
-            $response = Http::withOptions(['verify' => false])
+            /*$response = Http::withOptions(['verify' => false])
             ->withHeaders([
                 'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
                 'HTTP-Referer'  => 'https://exam.schooldrive.com.ng',   // MUST be a real URL
                 'X-Title'       => 'SchoolDrive CBT AI Generator'
+            ])*/
+            $response = Http::withOptions(['verify' => false])
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
+                'HTTP-Referer'  => config('services.openrouter.referer'),
+                'X-Title'       => 'SchoolDrive CBT AI Generator'
             ])
+
             ->timeout(120)
             ->post('https://openrouter.ai/api/v1/chat/completions', [
                 'model' => 'openai/gpt-4o-mini', // updated – gpt-3.5 no longer exists
