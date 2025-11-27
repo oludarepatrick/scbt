@@ -43,7 +43,7 @@
 
             <div class="mb-3">
                 <label class="control-label">Number of Questions</label>
-                <input type="number" name="number" class="form-control" min="1" max="50" required>
+                <input type="number" name="number" class="form-control" min="1" max="150" required>
             </div>
 
             
