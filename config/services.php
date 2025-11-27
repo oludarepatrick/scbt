@@ -15,7 +15,7 @@ return [
     */
     'openrouter' => [
     'api_key' => env('OPENROUTER_API_KEY'),
-    'referer' => env('APP_URL', 'https://exam.schooldrive.com.ng'),
+    'referer' => env('APP_URL', 'https://schooldrive.com.ng'),
     ],
 
     'gemini' => [
