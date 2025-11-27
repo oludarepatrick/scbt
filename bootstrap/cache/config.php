@@ -8,7 +8,7 @@
     'name' => 'driveCBT',
     'env' => 'local',
     'debug' => true,
-    'url' => 'https://exam.schooldrive.com.ng',
+    'url' => 'http://localhost',
     'frontend_url' => 'http://localhost:3000',
     'asset_url' => NULL,
     'timezone' => 'UTC',
@@ -420,7 +420,7 @@
       array (
         'driver' => 'local',
         'root' => 'C:\\xampp\\htdocs\\sCBT2\\storage\\app/public',
-        'url' => 'https://exam.schooldrive.com.ng/storage',
+        'url' => 'http://localhost/storage',
         'visibility' => 'public',
       ),
       's3' => 
@@ -682,7 +682,7 @@
       2 => '127.0.0.1',
       3 => '127.0.0.1:8000',
       4 => '::1',
-      5 => 'exam.schooldrive.com.ng',
+      5 => 'localhost',
     ),
     'guard' => 
     array (

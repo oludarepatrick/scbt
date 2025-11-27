@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Session;
 
 use Illuminate\Support\Facades\Http;
 use App\Models\Curriculum;
-use App\Models\AIQuestion;
+use App\Models\AiQuestion;
 //use Google\Cloud\Storage\StorageClient;
 
 class AiQuestionController extends Controller
@@ -52,7 +52,7 @@ public function testOpenRouter()
 
     $request->validate([
         'curriculum_id' => 'required|exists:curriculums,id',
-        'number' => 'required|integer|min:1|max:50',
+        'number' => 'required|integer|min:1|max:150',
     ]);
 
     $curriculum = Curriculum::findOrFail($request->curriculum_id);
@@ -69,7 +69,7 @@ public function testOpenRouter()
             $response = Http::withOptions(['verify' => false])
             ->withHeaders([
                 'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-                'HTTP-Referer'  => 'https://schooldrive.com.ng',   // MUST be a real URL
+                'HTTP-Referer'  => 'https://exam.schooldrive.com.ng',   // MUST be a real URL
                 'X-Title'       => 'SchoolDrive CBT AI Generator'
             ])
             ->timeout(120)
@@ -132,7 +132,7 @@ public function testOpenRouter()
             }
         }
 
-        $saved[] = AIQuestion::create([
+        $saved[] = AiQuestion::create([
             'curriculum_id'  => $request->curriculum_id,
             'question_text'       => trim($match[1]),
             'option_a'       => trim($match[2]),
@@ -161,7 +161,7 @@ public function testOpenRouter()
     {
     $curriculum = Curriculum::findOrFail($curriculum_id);
 
-    $questions = AIQuestion::where('curriculum_id', $curriculum_id)
+    $questions = AiQuestion::where('curriculum_id', $curriculum_id)
                            ->where('user_id', auth()->id())
                            ->latest()
                            ->get();
@@ -182,7 +182,7 @@ public function testOpenRouter()
         }
 
         foreach ($questions as $q) {
-            AIQuestion::create([
+            AiQuestion::create([
                 'curriculum_id' => $curriculum_id,
                 'question' => $q['question'],
                 'option_a' => $q['option_a'],
@@ -202,7 +202,7 @@ public function testOpenRouter()
 
     public function destroy($id)
     {
-        $question = AIQuestion::findOrFail($id);
+        $question = AiQuestion::findOrFail($id);
         $question->delete();
 
         return back()->with('success', 'Question deleted successfully.');
@@ -216,7 +216,7 @@ public function testOpenRouter()
             'correct_option' => 'required|string|in:A,B,C,D',
         ]);
 
-        $question = AIQuestion::findOrFail($id);
+        $question = AiQuestion::findOrFail($id);
 
         // Extract options
         $options = $request->input('options');
@@ -249,7 +249,7 @@ public function testOpenRouter()
 
         $request->validate([
             'curriculum_id' => 'required|exists:curriculums,id',
-            'number' => 'required|integer|min:1|max:50',
+            'number' => 'required|integer|min:1|max:150',
         ]);
 
         $curriculum = Curriculum::findOrFail($request->curriculum_id);
@@ -293,7 +293,7 @@ public function testOpenRouter()
         $saved = [];
 
         foreach ($matches as $match) {
-            $saved[] = AIQuestion::create([
+            $saved[] = AiQuestion::create([
                 'curriculum_id' => $request->curriculum_id,
                 'question_text' => trim($match[1]),
                 'option_a' => trim($match[2]),
@@ -317,7 +317,7 @@ public function testOpenRouter()
     {
     $curriculum = Curriculum::findOrFail($curriculum_id);
 
-    $questions = AIQuestion::where('curriculum_id', $curriculum_id)
+    $questions = AiQuestion::where('curriculum_id', $curriculum_id)
                            ->where('user_id', auth()->id())
                            ->latest()
                            ->get();
@@ -407,7 +407,7 @@ Answer: C";
      * Note: I've renamed it from your original 'generate' to match the standard
      * Laravel resource controller naming convention and the previous example.
      * Your route should point to this method:
-     * Route::post('/admin/questions/ai/generate', [AIQuestionController::class, 'generateQuestions']);
+     * Route::post('/admin/questions/ai/generate', [AiQuestionController::class, 'generateQuestions']);
      */
    /* public function generate5(Request $request)
     {
