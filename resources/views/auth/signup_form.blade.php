@@ -79,6 +79,23 @@
                         </div>
 
                         <div class="row mb-4">
+                            <label for="term" class="col-md-4 col-form-label text-md-end fw-semibold text-primary">{{ __('Term') }}</label>
+                            <div class="col-md-6">
+                                <select class="form-control rounded-pill @error('term') is-invalid @enderror" name="class_division" id="class_division" required>
+                                    <option value="">Select Arm</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="ART">ART</option>
+                                    <option value="COMMERCIAL">COMMERCIAL</option>
+                                    <option value="SCIENCE">SCIENCE</option>
+                                </select>
+                                @error('term')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
                             <label for="category" class="col-md-4 col-form-label text-md-end fw-semibold text-primary">{{ __('Category') }}</label>
                             <div class="col-md-6">
                                 <select class="form-control rounded-pill @error('category') is-invalid @enderror" name="category" id="category" required>
