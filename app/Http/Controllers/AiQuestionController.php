@@ -92,6 +92,7 @@ IMPORTANT:
         ->timeout(120)
         ->post('https://openrouter.ai/api/v1/chat/completions', [
             'model' => 'openai/gpt-4.1-mini',
+            'max_tokens' => 7000, // ✅ FIXED: Prevent token-limit credit erro
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
             ],
