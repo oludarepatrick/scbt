@@ -48,6 +48,113 @@ public function testOpenRouter()
 
     public function generate(Request $request)
 {
+    ini_set('max_execution_time', 180);
+
+    $request->validate([
+        'curriculum_id' => 'required|exists:curriculums,id',
+        'number' => 'required|integer|min:1|max:150',
+    ]);
+
+    $curriculum = Curriculum::findOrFail($request->curriculum_id);
+
+    // 🔥 Better, safer, formatting-stable prompt
+    $prompt = "
+Generate exactly {$request->number} multiple-choice objective questions
+based on the {$curriculum->content} Lagos State, Nigeria school curriculum
+for {$curriculum->class} level in the subject '{$curriculum->subject}'.
+
+STRICT FORMAT RULES — FOLLOW EXACTLY:
+-------------------------------------
+Do NOT use markdown, no **bold**, no *, no numbering lists.
+Return ONLY in this plain text format for every question:
+
+Question X: <question text>
+A) <option A>
+B) <option B>
+C) <option C>
+D) <option D>
+Correct Answer: <A/B/C/D>
+
+IMPORTANT:
+- Do NOT add explanations.
+- Do NOT include any formatting except the structure above.
+- Do NOT repeat the instructions.
+- Every question must start with: Question X:
+-------------------------------------
+";
+
+    // API Request
+    $response = Http::withOptions(['verify' => false])
+        ->withHeaders([
+            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+            'X-Title'       => 'SchoolDrive CBT AI Generator'
+        ])
+        ->timeout(120)
+        ->post('https://openrouter.ai/api/v1/chat/completions', [
+            'model' => 'openai/gpt-4.1-mini',
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt],
+            ],
+        ]);
+
+    $data = $response->json();
+
+    // Log errors
+    if ($response->failed()) {
+        \Log::error("OpenRouter error", [
+            'status' => $response->status(),
+            'body'   => $response->body()
+        ]);
+        return back()->with('error', 'AI generation failed. Check logs.');
+    }
+
+    if (!isset($data['choices'][0]['message']['content'])) {
+        return back()->with('error', 'Failed to generate questions.');
+    }
+
+    $content = $data['choices'][0]['message']['content'];
+
+    // 🔥 PERFECT REGEX for enforced format
+    preg_match_all(
+        '/Question\s+\d+:\s*(.*?)\s*A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*?)\s*Correct Answer:\s*([A-D])/s',
+        $content,
+        $matches,
+        PREG_SET_ORDER
+    );
+
+    if (empty($matches)) {
+        \Log::error("No matches found in AI response", ['content' => $content]);
+        return back()->with('error', 'Could not parse questions. Check AI response format.');
+    }
+
+    $saved = [];
+
+    foreach ($matches as $match) {
+        $correct = trim($match[6]);
+
+        $saved[] = AiQuestion::create([
+            'curriculum_id'  => $request->curriculum_id,
+            'question_text'  => trim($match[1]),
+            'option_a'       => trim($match[2]),
+            'option_b'       => trim($match[3]),
+            'option_c'       => trim($match[4]),
+            'option_d'       => trim($match[5]),
+            'correct_option' => $correct,
+            'user_id'        => auth()->id(),
+            'source'         => 'ai',
+            'class'          => $curriculum->class,
+            'subject'        => $curriculum->subject,
+            'duration'       => $curriculum->time_left ?? 0,
+        ]);
+    }
+
+    return redirect()->route('ai.preview', ['curriculum_id' => $request->curriculum_id])
+                    ->with('success', count($saved) . ' questions generated and saved.');
+}
+
+
+   /* public function generate(Request $request)
+{
     ini_set('max_execution_time', 180); // prevent timeout
 
     $request->validate([
@@ -72,14 +179,14 @@ public function testOpenRouter()
                 'HTTP-Referer'  => 'https://exam.schooldrive.com.ng',   // MUST be a real URL
                 'X-Title'       => 'SchoolDrive CBT AI Generator'
             ])*/
-            $response = Http::withOptions(['verify' => false])
+            /*$response = Http::withOptions(['verify' => false])
             ->withHeaders([
                 'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
                 'X-Title'       => 'SchoolDrive CBT AI Generator'
             ])
             ->timeout(120)
             ->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model' => 'openai/gpt-4o-mini',
+                'model' => 'openai/gpt-4.1-mini',
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt],
                 ],
@@ -156,7 +263,7 @@ public function testOpenRouter()
 
     return redirect()->route('ai.preview', ['curriculum_id' => $request->curriculum_id])
                     ->with('success', count($saved) . ' questions generated and saved.');
-}
+}*/
 
 
 
