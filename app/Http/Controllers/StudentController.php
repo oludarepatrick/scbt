@@ -8,7 +8,7 @@ use App\Models\Quiz;
 use App\Models\Result;
 use App\Models\Question;
 use App\Models\Curriculum;
-use App\Models\AIQuestion;
+use App\Models\AiQuestion;
 use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
@@ -94,7 +94,7 @@ class StudentController extends Controller
             return redirect()->route('student.quizzes')->with('error', 'Unauthorized access to quiz.');
         }
 
-        $questions = AIQuestion::where('curriculum_id', $curriculum->id)->get();
+        $questions = AiQuestion::where('curriculum_id', $curriculum->id)->get();
 
         return view('student.quizzes.take', compact('curriculum', 'questions'));
     }

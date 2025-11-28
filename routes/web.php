@@ -19,7 +19,7 @@ use App\Http\Controllers\AiQuestionController;
 //use App\Http\Controllers\TestSessionController;
 use App\Http\Controllers\StudentAnswerController;
 use App\Http\Controllers\StudentController;
-use App\Http\Controllers\AIStudentController;
+use App\Http\Controllers\AiStudentController;
 use App\Http\Controllers\SchoolSetupController;
 
 /*
@@ -173,17 +173,17 @@ Route::group(['middleware'=>'isAdmin'],function(){
     //Route::post('/questions/teacher', [TeacherQuestionController::class, 'store'])->name('teacher_questions.store');
 
     // AI question generation from curriculum
-    Route::get('/questions/ai/generate', [AIQuestionController::class, 'showGenerateForm'])->name('ai_questions.generate');
-    Route::post('/questions/ai/generate', [AIQuestionController::class, 'generate'])->name('ai_questions.store');
-    Route::get('/questions/ai/preview/{curriculum_id}', [AIQuestionController::class, 'preview'])->name('ai.preview');
-    Route::post('/questions/ai/submit', [AIQuestionController::class, 'store'])->name('ai_questions.submit');
-    Route::get('/ai-questions', [AIQuestionController::class, 'index'])->name('ai_questions.index');
-    Route::delete('/questions/ai/{id}', [AIQuestionController::class, 'destroy'])->name('ai_questions.destroy');
-    Route::post('/questions/ai/{id}/update', [AIQuestionController::class, 'update'])->name('ai_questions.update');
+    Route::get('/questions/ai/generate', [AiQuestionController::class, 'showGenerateForm'])->name('ai_questions.generate');
+    Route::post('/questions/ai/generate', [AiQuestionController::class, 'generate'])->name('ai_questions.store');
+    Route::get('/questions/ai/preview/{curriculum_id}', [AiQuestionController::class, 'preview'])->name('ai.preview');
+    Route::post('/questions/ai/submit', [AiQuestionController::class, 'store'])->name('ai_questions.submit');
+    Route::get('/ai-questions', [AiQuestionController::class, 'index'])->name('ai_questions.index');
+    Route::delete('/questions/ai/{id}', [AiQuestionController::class, 'destroy'])->name('ai_questions.destroy');
+    Route::post('/questions/ai/{id}/update', [AiQuestionController::class, 'update'])->name('ai_questions.update');
     //Generate Maths Question Route
-    Route::post('/questions/ai/generate_maths', [AIQuestionController::class, 'generateMaths'])->name('ai_questions.store_maths');
-    Route::get('/questions/ai/generate_maths', [AIQuestionController::class, 'showGenerateFormMaths'])->name('ai_questions.generate_maths');
-    Route::get('/questions/ai/preview_maths/{curriculum_id}', [AIQuestionController::class, 'preview_maths'])->name('ai.preview_maths');
+    Route::post('/questions/ai/generate_maths', [AiQuestionController::class, 'generateMaths'])->name('ai_questions.store_maths');
+    Route::get('/questions/ai/generate_maths', [AiQuestionController::class, 'showGenerateFormMaths'])->name('ai_questions.generate_maths');
+    Route::get('/questions/ai/preview_maths/{curriculum_id}', [AiQuestionController::class, 'preview_maths'])->name('ai.preview_maths');
 
 });
 
@@ -210,8 +210,8 @@ Route::get('/cbt/student/quiz/{curriculum}', [StudentController::class, 'takeQui
 //Route::get('/check-key', [AIQuestionController::class, 'checkApiKey']);
 
 //AI Exam Student Ends
-Route::get('/ai-login', [AIStudentController::class, 'showLogin'])->name('ai.login');
-Route::post('/ai-login', [AIStudentController::class, 'login'])->name('ai.login.submit');
+Route::get('/ai-login', [AiStudentController::class, 'showLogin'])->name('ai.login');
+Route::post('/ai-login', [AiStudentController::class, 'login'])->name('ai.login.submit');
 
 /*Route::middleware(['auth'])->prefix('ai')->group(function () {
     Route::get('/dashboard', [AIStudentController::class, 'dashboard'])->name('ai.dashboard');
@@ -228,19 +228,19 @@ Route::post('/ai-login', [AIStudentController::class, 'login'])->name('ai.login.
 
 Route::middleware(['auth'])->prefix('ai')->group(function () {
 
-    Route::get('/dashboard', [AIStudentController::class, 'dashboard'])->name('ai.dashboard');
-    Route::get('/quizzes', [AIStudentController::class, 'showAvailableQuizzes'])->name('ai.quizzes');
-    Route::get('/quiz/{quizId}/start', [AIStudentController::class, 'start'])->name('ai.quiz.start');
-    Route::post('/quiz/{quizUser}/submit', [AIStudentController::class, 'submit'])->name('quiz.submit');
-    Route::post('/quiz/{quizUser}/next', [AIStudentController::class, 'nextAjax'])->name('quiz.next');
+    Route::get('/dashboard', [AiStudentController::class, 'dashboard'])->name('ai.dashboard');
+    Route::get('/quizzes', [AiStudentController::class, 'showAvailableQuizzes'])->name('ai.quizzes');
+    Route::get('/quiz/{quizId}/start', [AiStudentController::class, 'start'])->name('ai.quiz.start');
+    Route::post('/quiz/{quizUser}/submit', [AiStudentController::class, 'submit'])->name('quiz.submit');
+    Route::post('/quiz/{quizUser}/next', [AiStudentController::class, 'nextAjax'])->name('quiz.next');
 
     //Route::post('/quiz/save-time/{quizUser}', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
-    Route::post('/quiz/save-time', [AIStudentController::class, 'saveTime'])->name('quiz.saveTime');
+    Route::post('/quiz/save-time', [AiStudentController::class, 'saveTime'])->name('quiz.saveTime');
     //Route::post('/quiz/{id}/save-time', [AIStudentController::class, 'saveTime'])->name('quiz.save_time');
-    Route::get('/quiz-user/{quizUser}/finish', [AIStudentController::class, 'finish'])->name('quiz.finish');
-    Route::get('/quiz-user/{quizUser}/result', [AIStudentController::class, 'result'])->name('quiz.result');
-    Route::get('/quiz-user/{quizUser}/result/pdf', [AIStudentController::class, 'exportResultPdf'])->name('quiz.result.pdf');
+    Route::get('/quiz-user/{quizUser}/finish', [AiStudentController::class, 'finish'])->name('quiz.finish');
+    Route::get('/quiz-user/{quizUser}/result', [AiStudentController::class, 'result'])->name('quiz.result');
+    Route::get('/quiz-user/{quizUser}/result/pdf', [AiStudentController::class, 'exportResultPdf'])->name('quiz.result.pdf');
     // routes/web.php (inside your auth group)
-    Route::post('/quiz-user/{quizUser}/finish', [AIStudentController::class, 'finish'])->name('quiz.finish.post');
+    Route::post('/quiz-user/{quizUser}/finish', [AiStudentController::class, 'finish'])->name('quiz.finish.post');
 
 });

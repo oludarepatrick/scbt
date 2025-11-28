@@ -26,7 +26,7 @@ class StudentAnswer extends Model
 
     public function question()
     {
-        return $this->belongsTo(AIQuestion::class, 'question_id');
+        return $this->belongsTo(AiQuestion::class, 'question_id');
     }
     public function quiz()
     {

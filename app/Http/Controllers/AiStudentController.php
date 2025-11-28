@@ -14,7 +14,7 @@ use App\Models\StudentAnswer;
 use App\Models\TestSession;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class AIStudentController extends Controller
+class AiStudentController extends Controller
 {
     public function showLogin()
     {
@@ -413,6 +413,53 @@ public function next(Request $request, $quiz_id)
     }*/
 
     public function result($quizId)
+{
+    // Load quiz with curriculum and validate ownership
+    $quiz = QuizUser::with('curriculum')
+        ->where('id', $quizId)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    // Load student answers together with the actual AI questions
+    $answers = StudentAnswer::with(['question' => function ($q) {
+        $q->select('id', 'correct_option', 'option_a', 'option_b', 'option_c', 'option_d', 'question_text');
+    }])
+    ->where('quiz_id', $quizId)
+    ->where('user_id', auth()->id())
+    ->get();
+
+    // Total number of answered questions
+    $totalQuestions = $answers->count();
+
+    // Correct answers based on comparing correct_option vs answer_option
+    $correctAnswers = $answers->filter(function ($answer) {
+        return strtoupper($answer->answer_option) === strtoupper(optional($answer->question)->correct_option);
+    })->count();
+
+    // Score percentage
+    $scorePercentage = $totalQuestions > 0
+        ? round(($correctAnswers / $totalQuestions) * 100, 2)
+        : 0;
+
+    // Remark logic
+    if ($scorePercentage >= 80) {
+        $remark = 'Excellent';
+    } elseif ($scorePercentage >= 60) {
+        $remark = 'Good';
+    } elseif ($scorePercentage >= 40) {
+        $remark = 'Fair';
+    } else {
+        $remark = 'Needs Improvement';
+    }
+
+    return view('student.quiz_result', compact(
+        'quiz', 'answers', 'correctAnswers', 'totalQuestions', 'scorePercentage', 'remark'
+    ));
+}
+
+
+
+    /*public function result2($quizId)
     {
         $quiz = QuizUser::with('curriculum')->where('id', $quizId)->where('user_id', auth()->id())->firstOrFail();
 
@@ -440,7 +487,7 @@ public function next(Request $request, $quiz_id)
         }
 
         return view('student.quiz_result', compact('quiz', 'answers', 'correctAnswers', 'totalQuestions', 'scorePercentage', 'remark'));
-    }
+    }*/
 
     public function exportResultPdf($quizId)
     {

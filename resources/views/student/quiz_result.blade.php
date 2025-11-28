@@ -40,7 +40,7 @@
 
                 <div class="card mb-3 border-{{ $isCorrect ? 'success' : 'danger' }}">
                     <div class="card-body">
-                        <h5>{{ strip_tags(html_entity_decode($question->question)) }}</h5>
+                        <h5>{{ strip_tags(html_entity_decode($question->question_text)) }}</h5>
 
                         @php
                             $options = [

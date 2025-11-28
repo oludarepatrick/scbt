@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Curriculum;
 use App\Models\TeacherQuestion;
-use App\Models\AIQuestion;
+use App\Models\AiQuestion;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\User;
@@ -22,8 +22,8 @@ class TeacherController extends Controller
         $curriculums = Curriculum::where('user_id', auth()->id())->get();
 
         // Fetch the teacher's questions
-        //$questions = AIQuestion::where('user_id', auth()->id())->latest()->get();
-        $questions = AIQuestion::where('user_id', auth()->id())->latest()->paginate(10);
+        //$questions = AiQuestion::where('user_id', auth()->id())->latest()->get();
+        $questions = AiQuestion::where('user_id', auth()->id())->latest()->paginate(10);
 
 
         return view('backend.teacher_questions.index', compact('curriculums', 'questions'));
@@ -218,7 +218,7 @@ $curriculum->update([
             'correct_option' => 'required|string',
         ]);
 
-        $question = AIQuestion::findOrFail($id);
+        $question = AiQuestion::findOrFail($id);
         $question->update([
             'question' => $request->question,
             'options' => json_encode($request->options),
@@ -266,7 +266,7 @@ $curriculum->update([
     $curriculum->update(['time_left' => $timeLimit]);
 
     // ✅ 2. Update AI Questions duration for this curriculum
-    \App\Models\AIQuestion::where('curriculum_id', $curriculum->id)
+    \App\Models\AiQuestion::where('curriculum_id', $curriculum->id)
         ->update(['duration' => $timeLimit]);
 
     // ✅ 3. Assign time to students in quiz_user table
@@ -291,7 +291,7 @@ $curriculum->update([
     {
         $curriculum = Curriculum::findOrFail($curriculum_id);
 
-        $questions = AIQuestion::where('curriculum_id', $curriculum_id)
+        $questions = AiQuestion::where('curriculum_id', $curriculum_id)
                             ->latest()
                             ->get();
 
@@ -303,7 +303,7 @@ $curriculum->update([
     {
         $curriculum = Curriculum::findOrFail($curriculum_id);
 
-        $questions = AIQuestion::where('curriculum_id', $curriculum_id)
+        $questions = AiQuestion::where('curriculum_id', $curriculum_id)
                             ->latest()
                             ->get();
 
@@ -316,7 +316,7 @@ $curriculum->update([
         $curriculum = Curriculum::findOrFail($curriculum_id);
 
         // Delete all AI questions for this curriculum
-        AIQuestion::where('curriculum_id', $curriculum_id)->delete();
+        AiQuestion::where('curriculum_id', $curriculum_id)->delete();
 
         // Delete the curriculum record itself
         $curriculum->delete();

@@ -9,12 +9,12 @@ use App\Models\Curriculum;
 use DB;
 use App\Models\QuizUser;
 use App\Models\Quiz;
-use App\Models\AIQuestion;
+use App\Models\AiQuestion;
 use App\Models\StudentAnswer;
 use App\Models\TestSession;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class AIStudentController extends Controller
+class AiStudentController extends Controller
 {
     public function showLogin()
     {
@@ -137,7 +137,7 @@ class AIStudentController extends Controller
     $curriculum = Curriculum::findOrFail($quiz->curriculum_id);
 
     // Load questions for this curriculum
-    $questions = AIQuestion::where('curriculum_id', $curriculum->id)
+    $questions = AiQuestion::where('curriculum_id', $curriculum->id)
         ->skip(($page - 1) * $perPage)
         ->take($perPage + 1)
         ->get();
@@ -180,7 +180,7 @@ class AIStudentController extends Controller
             ->count();
 
         // Total number of AI questions in this curriculum/quiz
-        $totalQuestions = AIQuestion::where('curriculum_id', $quizUser->quiz_id)->count();
+        $totalQuestions = AiQuestion::where('curriculum_id', $quizUser->quiz_id)->count();
 
         // If all questions are answered, redirect to finish page
         if ($answeredCount >= $totalQuestions) {
@@ -188,7 +188,7 @@ class AIStudentController extends Controller
         }
 
         // Get next unanswered question
-        $nextQuestion = AIQuestion::where('curriculum_id', $quizUser->quiz_id)
+        $nextQuestion = AiQuestion::where('curriculum_id', $quizUser->quiz_id)
             ->whereNotIn('id', StudentAnswer::where('quiz_id', $quizUser->quiz_id)
                 ->where('user_id', $quizUser->user_id)
                 ->pluck('question_id'))
@@ -372,6 +372,53 @@ public function next(Request $request, $quiz_id)
     }
 
     public function result($quizId)
+{
+    // Load quiz with curriculum and validate ownership
+    $quiz = QuizUser::with('curriculum')
+        ->where('id', $quizId)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    // Load student answers together with the actual AI questions
+    $answers = StudentAnswer::with(['question' => function ($q) {
+        $q->select('id', 'correct_option', 'option_a', 'option_b', 'option_c', 'option_d', 'question_text');
+    }])
+    ->where('quiz_id', $quizId)
+    ->where('user_id', auth()->id())
+    ->get();
+
+    // Total number of answered questions
+    $totalQuestions = $answers->count();
+
+    // Correct answers based on comparing correct_option vs answer_option
+    $correctAnswers = $answers->filter(function ($answer) {
+        return strtoupper($answer->answer_option) === strtoupper(optional($answer->question)->correct_option);
+    })->count();
+
+    // Score percentage
+    $scorePercentage = $totalQuestions > 0
+        ? round(($correctAnswers / $totalQuestions) * 100, 2)
+        : 0;
+
+    // Remark logic
+    if ($scorePercentage >= 80) {
+        $remark = 'Excellent';
+    } elseif ($scorePercentage >= 60) {
+        $remark = 'Good';
+    } elseif ($scorePercentage >= 40) {
+        $remark = 'Fair';
+    } else {
+        $remark = 'Needs Improvement';
+    }
+
+    return view('student.quiz_result', compact(
+        'quiz', 'answers', 'correctAnswers', 'totalQuestions', 'scorePercentage', 'remark'
+    ));
+}
+
+
+    //this method shold be used to display result for quiz that is not ai generated
+   /* public function result2($quizId)
     {
         $quiz = QuizUser::with('curriculum')->where('id', $quizId)->where('user_id', auth()->id())->firstOrFail();
 
@@ -399,7 +446,8 @@ public function next(Request $request, $quiz_id)
         }
 
         return view('student.quiz_result', compact('quiz', 'answers', 'correctAnswers', 'totalQuestions', 'scorePercentage', 'remark'));
-    }
+    }*/
+        
 
     public function exportResultPdf($quizId)
     {
