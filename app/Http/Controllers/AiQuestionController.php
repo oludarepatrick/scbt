@@ -91,8 +91,8 @@ IMPORTANT:
         ])
         ->timeout(120)
         ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'openai/gpt-4.1-mini',
-            'max_tokens' => 2000, // ✅ FIXED: Prevent token-limit credit erro
+            'model' => 'qwen/qwen2.5-coder-7b-instruct',
+            'max_tokens' => 10000, // ✅ FIXED: Prevent token-limit credit erro
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
             ],
@@ -116,12 +116,7 @@ IMPORTANT:
     $content = $data['choices'][0]['message']['content'];
 
     // 🔥 PERFECT REGEX for enforced format
-    preg_match_all(
-        '/Question\s+\d+:\s*(.*?)\s*A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*?)\s*Correct Answer:\s*([A-D])/s',
-        $content,
-        $matches,
-        PREG_SET_ORDER
-    );
+    preg_match_all( '/Question\s+\d+:\s*(.*?)\s*A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*?)\s*Correct Answer:\s*([A-D])/s', $content, $matches, PREG_SET_ORDER );
 
     if (empty($matches)) {
         \Log::error("No matches found in AI response", ['content' => $content]);
