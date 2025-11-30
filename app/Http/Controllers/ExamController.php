@@ -324,13 +324,13 @@ public function userQuizResult($userId,$quizId){
         $data['quizId'] = $request->quizId;
 
         if ($data['students']->isEmpty()) {
-            return response("<h3 align='center' style='color:red'>No Record(s) Found</h3>");
+            return back()->with('error', 'No Record(s) Found');
         }
 
         return view('backend.exam.load-students', $data);
     }
 
-    return response("<h3 align='center' style='color:red'>No Record(s) Found</h3>");
+    return back()->with('error', 'No Record(s) Found');
 }
 
     public function showStudForReassign(Request $request)
@@ -378,7 +378,8 @@ public function userQuizResult($userId,$quizId){
             //return resposnse()->json(view('backend.exam.load-students',$data));
         }
         else{
-            echo "<h3 align='center' style='color:red'>No Record(s) Found</h3>";
+            //echo "<h3 align='center' style='color:red'>No Record(s) Found</h3>";
+            return back()->with('error', 'No Record(s) Found');
         }
         
     }
@@ -443,7 +444,8 @@ public function loadQuizes2(Request $request)
         ->toArray();
 
     if (empty($studentIds)) {
-        return "<h2>No Available Result</h2>";
+        return back()->with('error', 'No Record(s) Found');
+
     }
 
     // Fetch student data
