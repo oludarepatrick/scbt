@@ -42,9 +42,13 @@
             <div class="card">
                 <div class="card-header">User Profile</div>
                 <div class="card-body">
-                <p>Email: {{auth()->user()->email}}</p>
-                <p>Occupation: {{auth()->user()->occupation}}</p>
+                <p>Firstname: {{auth()->user()->firstname}}</p>
+                <p>Lastname: {{auth()->user()->lastname}}</p>
+                <p>Class: {{auth()->user()->class}}</p>
+                <p>Class Arm: {{auth()->user()->class_division}}</p>
+                <p>Category: {{auth()->user()->category}}</p>
                 <p>Address: {{auth()->user()->address}}</p>
+                <p>Email: {{auth()->user()->email}}</p>
                 <p>Phone: {{auth()->user()->phone}}</p>
                 </div>
             </div>

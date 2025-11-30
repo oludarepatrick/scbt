@@ -91,8 +91,8 @@ IMPORTANT:
         ])
         ->timeout(120)
         ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'qwen/qwen2.5-coder-7b-instruct',
-            'max_tokens' => 10000, // ✅ FIXED: Prevent token-limit credit erro
+            'model' => 'openrouter/auto',
+            'max_tokens' => 2000, // ✅ FIXED: Prevent token-limit credit erro
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
             ],
