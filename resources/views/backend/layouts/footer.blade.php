@@ -10,7 +10,8 @@
         <script src="{{asset('edmin/code/scripts/flot/jquery.flot.js')}}" type="text/javascript"></script>
         <script src="{{asset('edmin/code/scripts/flot/jquery.flot.resize.js')}}" type="text/javascript"></script>
         <script src="{{asset('edmin/code/scripts/datatables/jquery.dataTables.js')}}" type="text/javascript"></script>
-        <script src="scripts/common.js" type="text/javascript"></script>
+        <script src="{{asset('edmin/code/scripts/common.js')}}" type="text/javascript"></script>
+
         
       
     </body>
