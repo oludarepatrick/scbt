@@ -91,7 +91,7 @@ IMPORTANT:
         ])
         ->timeout(120)
         ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'openrouter/auto',
+            'model' => 'mistralai/mistral-7b-instruct',
             'max_tokens' => 2000, // ✅ FIXED: Prevent token-limit credit erro
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
