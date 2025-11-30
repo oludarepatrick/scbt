@@ -39,7 +39,7 @@
                             <td>{{ $student->firstname }}</td>
                             <td>{{ $student->lastname }}</td>
                             <td>{{ $student->class }}</td>
-                            <td>{{ $student->username }}</td>
+                            <td>{{ $student->email }}</td>
                             <td>{{ $student->visible_password }}</td> <!-- Consider securing passwords -->
                         </tr>
                         @endforeach
