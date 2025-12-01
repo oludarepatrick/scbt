@@ -3,6 +3,27 @@
 @section('title', 'Preview AI Questions')
 
 @section('content')
+<style>
+    #miniEditor { width: 100%; }
+    .editor-toolbar button {
+        border: 1px solid #ccc;
+        background: white;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-right: 5px;
+        border-radius: 4px;
+    }
+    .editor-area {
+        border: 1px solid #ccc;
+        min-height: 150px;
+        padding: 10px;
+        margin-top: 10px;
+        background: #fff;
+    }
+    .editor-area img {
+        max-width: 100%;
+    }
+</style>
 <div class="span9">
     <div class="content">
 
@@ -27,7 +48,56 @@
                             @csrf
                             <div class="form-group">
                                 <label><strong>Question:</strong></label>
-                                <textarea name="question" class="form-control" style="width:500px;">{{ strip_tags(html_entity_decode($q->question_text)) }}</textarea>
+
+                                <!-- Hidden textarea -->
+                                <textarea name="question"
+                                        class="form-control hidden-textarea"
+                                        style="width:500px; display:none;">
+                                    {{ strip_tags(html_entity_decode($q->question_text)) }}
+                                </textarea>
+
+                                <!-- Toolbar -->
+                                <div class="editor-toolbar" style="margin-bottom:8px;">
+                                    <!-- Basic -->
+                                    <button type="button" data-cmd="bold">Bold</button>
+                                    <button type="button" data-cmd="italic">Italic</button>
+                                    <button type="button" data-cmd="underline">Underline</button>
+                                    <button type="button" data-cmd="subscript">Sub</button>
+                                    <button type="button" data-cmd="superscript">Super</button>
+
+                                    <!-- Alignment -->
+                                    <button type="button" data-cmd="justifyLeft">Left</button>
+                                    <button type="button" data-cmd="justifyCenter">Center</button>
+                                    <button type="button" data-cmd="justifyRight">Right</button>
+                                    <button type="button" data-cmd="justifyFull">Justify</button>
+
+                                    <!-- Lists -->
+                                    <button type="button" data-cmd="insertUnorderedList">• Bullet</button>
+                                    <button type="button" data-cmd="insertOrderedList">1. Number</button>
+
+                                    <!-- Colors -->
+                                    <button type="button" class="textColorBtn">Text Color</button>
+                                    <button type="button" class="bgColorBtn">Highlight</button>
+
+                                    <!-- Inserts -->
+                                    <button type="button" data-cmd="insertHorizontalRule">HR</button>
+                                    <button type="button" class="insertTableBtn">Table</button>
+                                    <button type="button" class="insertCodeBtn">Code</button>
+                                    <button type="button" class="insertQuoteBtn">Quote</button>
+
+                                    <!-- Media -->
+                                    <button type="button" class="insertImageBtn">Image</button>
+                                    <button type="button" class="insertMathBtn">Math</button>
+
+                                    <!-- Clean -->
+                                    <button type="button" data-cmd="removeFormat">Clean</button>
+                                </div>
+
+                                <!-- Editor -->
+                                <div class="editor-area"
+                                    contenteditable="true"
+                                    style="border:1px solid #ccc; padding:10px; min-height:150px; border-radius:4px;">
+                                </div>
                             </div>
 
                             <div class="form-group mt-2">
@@ -81,17 +151,91 @@
 
 
 @section('scripts')
-<!-- TinyMCE (unchanged) -->
-<script src="https://cdn.tiny.cloud/1/5ioc9z9q1p1fzpsdpkyz9aqvmx1dey6a9jgxeedi7n72ugl4/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
 <script>
-    tinymce.init({
-        selector: 'textarea.question-textarea',
-        menubar: false,
-        plugins: 'lists link',
-        toolbar: 'undo redo | bold italic underline | bullist numlist | link',
-        height: 150
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.querySelectorAll(".question-block").forEach(block => {
+
+        const editor = block.querySelector(".editor-area");
+        const textarea = block.querySelector(".hidden-textarea");
+
+        // Load initial question HTML
+        editor.innerHTML = textarea.value;
+
+        // Basic formatting buttons
+        block.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.execCommand(btn.dataset.cmd, false, null);
+            });
+        });
+
+        // Text color
+        block.querySelector(".textColorBtn").addEventListener("click", () => {
+            let color = prompt("Enter text color (name or hex):", "#000000");
+            if (color) document.execCommand("foreColor", false, color);
+        });
+
+        // Background highlight
+        block.querySelector(".bgColorBtn").addEventListener("click", () => {
+            let color = prompt("Enter highlight color:", "yellow");
+            if (color) document.execCommand("backColor", false, color);
+        });
+
+        // Insert Image
+        block.querySelector(".insertImageBtn").addEventListener("click", () => {
+            let url = prompt("Enter Image URL:");
+            if (url) document.execCommand("insertImage", false, url);
+        });
+
+        // Insert Math
+        block.querySelector(".insertMathBtn").addEventListener("click", () => {
+            let formula = prompt("Enter LaTeX:");
+            if (formula) {
+                let html = `<span class='math'>\\(${formula}\\)</span>`;
+                document.execCommand("insertHTML", false, html);
+
+                if (window.MathJax) MathJax.typesetPromise();
+            }
+        });
+
+        // Insert Table
+        block.querySelector(".insertTableBtn").addEventListener("click", () => {
+            let tableHtml =
+                `<table border="1" cellpadding="4" style="border-collapse:collapse;">
+                    <tr><td>Cell 1</td><td>Cell 2</td></tr>
+                    <tr><td>Cell 3</td><td>Cell 4</td></tr>
+                </table>`;
+            document.execCommand("insertHTML", false, tableHtml);
+        });
+
+        // Insert Code Block
+        block.querySelector(".insertCodeBtn").addEventListener("click", () => {
+            let code = prompt("Enter code:");
+            if (code) {
+                let html = `<pre style="background:#eee; padding:6px;">${code}</pre>`;
+                document.execCommand("insertHTML", false, html);
+            }
+        });
+
+        // Insert Quote
+        block.querySelector(".insertQuoteBtn").addEventListener("click", () => {
+            let text = prompt("Quote text:");
+            if (text) {
+                let html = `<blockquote style='border-left:3px solid #999; padding-left:8px;'>${text}</blockquote>`;
+                document.execCommand("insertHTML", false, html);
+            }
+        });
+
+        // Sync editor → textarea before saving
+        block.querySelector(".update-btn").addEventListener("click", () => {
+            textarea.value = editor.innerHTML;
+        });
+
     });
+});
 </script>
+
 
 <!-- ✅ AJAX Script -->
 <script>
