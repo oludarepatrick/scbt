@@ -11,7 +11,7 @@
                 <th>Time Left</th>
                 <th>Date Created</th>
                 <th>Status</th>
-                <th>Score</th>
+               {{-- <th>Score</th> --}}
                 <th>Action</th>
             </tr>
         </thead>
@@ -47,7 +47,8 @@
                             Unknown
                         @endif
                     </td>
-                    <td>
+                   {{-- <td>
+                        
                         @if($quiz->status == 2)
                             @php
                                 // Count correct answers
@@ -67,8 +68,8 @@
                             {{ $correct }}/{{ $total }} ({{ $percent }}%)
                         @else
                             -
-                        @endif
-                    </td>
+                        @endif 
+                    </td> --}}
 
                    {{-- Action Buttons --}}
                 <td>
