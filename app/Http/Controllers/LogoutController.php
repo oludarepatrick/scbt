@@ -18,7 +18,7 @@ class LogoutController extends Controller
         //local
         //return redirect()->intended('http://127.0.0.1:8000/login');
         //Live
-        return redirect()->intended('http://exam.schooldrive.com.ng/ai-login');
+        return redirect()->intended('http://yffscbt.schooldrive.com.ng/ai-login');
         
         // if($userType=="Student")
         // {

@@ -248,24 +248,96 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 <!-- ✅ AJAX Script -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-   
 
-    const updateButtons = document.querySelectorAll('.update-btn');
-    
-    updateButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            tinymce.triggerSave();
-            const parent = button.closest('.question-block');
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Initialize each question block
+    document.querySelectorAll(".question-block").forEach(block => {
+
+        const editor = block.querySelector(".editor-area");
+        const textarea = block.querySelector(".hidden-textarea");
+
+        // Load initial question HTML from textarea
+        editor.innerHTML = textarea.value;
+
+        // Handle toolbar buttons
+        block.querySelectorAll(".editor-toolbar button[data-cmd]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.execCommand(btn.dataset.cmd, false, null);
+            });
+        });
+
+        // Text color
+        block.querySelector(".textColorBtn")?.addEventListener("click", () => {
+            let color = prompt("Enter text color (name or hex):", "#000000");
+            if (color) document.execCommand("foreColor", false, color);
+        });
+
+        // Background highlight
+        block.querySelector(".bgColorBtn")?.addEventListener("click", () => {
+            let color = prompt("Enter highlight color:", "yellow");
+            if (color) document.execCommand("backColor", false, color);
+        });
+
+        // Insert Image
+        block.querySelector(".insertImageBtn")?.addEventListener("click", () => {
+            let url = prompt("Enter Image URL:");
+            if (url) document.execCommand("insertImage", false, url);
+        });
+
+        // Insert Math
+        block.querySelector(".insertMathBtn")?.addEventListener("click", () => {
+            let formula = prompt("Enter LaTeX:");
+            if (formula) {
+                let html = `<span class='math'>\\(${formula}\\)</span>`;
+                document.execCommand("insertHTML", false, html);
+                if (window.MathJax) MathJax.typesetPromise();
+            }
+        });
+
+        // Insert Table
+        block.querySelector(".insertTableBtn")?.addEventListener("click", () => {
+            let tableHtml =
+                `<table border="1" cellpadding="4" style="border-collapse:collapse;">
+                    <tr><td>Cell 1</td><td>Cell 2</td></tr>
+                    <tr><td>Cell 3</td><td>Cell 4</td></tr>
+                </table>`;
+            document.execCommand("insertHTML", false, tableHtml);
+        });
+
+        // Insert Code Block
+        block.querySelector(".insertCodeBtn")?.addEventListener("click", () => {
+            let code = prompt("Enter code:");
+            if (code) {
+                let html = `<pre style="background:#eee; padding:6px;">${code}</pre>`;
+                document.execCommand("insertHTML", false, html);
+            }
+        });
+
+        // Insert Quote
+        block.querySelector(".insertQuoteBtn")?.addEventListener("click", () => {
+            let text = prompt("Quote text:");
+            if (text) {
+                let html = `<blockquote style='border-left:3px solid #999; padding-left:8px;'>${text}</blockquote>`;
+                document.execCommand("insertHTML", false, html);
+            }
+        });
+
+        // Update button click
+        block.querySelector(".update-btn").addEventListener("click", () => {
+
+            // Sync contenteditable editor → hidden textarea
+            textarea.value = editor.innerHTML;
+
+            const parent = block;
             const id = parent.getAttribute('data-id');
             const form = parent.querySelector('.update-form');
-            const formData = new FormData(form);
 
-            // Convert options into array format
+            // Prepare data
             const data = {
                 _token: form.querySelector('input[name="_token"]').value,
-                question: form.querySelector('textarea[name="question"]').value,
+                question: textarea.value,
                 options: {
                     A: form.querySelector('input[name="option_a"]').value,
                     B: form.querySelector('input[name="option_b"]').value,
@@ -275,6 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 correct_option: form.querySelector('select[name="correct_option"]').value
             };
 
+            // AJAX request
             fetch(`/admin/questions/ai/${id}/update`, {
                 method: 'POST',
                 headers: {
@@ -297,8 +370,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('❌ Request failed.');
             });
         });
+
     });
 });
 </script>
-
 @endsection
