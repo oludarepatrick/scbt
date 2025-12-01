@@ -113,3 +113,12 @@
 </div>
 
 @endsection
+<script>
+document.addEventListener("paste", function (e) {
+    if (e.target.name === "curriculum_text") {
+        e.preventDefault();
+        let text = (e.clipboardData || window.clipboardData).getData("text/plain");
+        document.execCommand("insertText", false, text);
+    }
+});
+</script>

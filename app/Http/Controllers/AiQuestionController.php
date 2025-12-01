@@ -66,6 +66,12 @@ for {$curriculum->class} level in the subject '{$curriculum->subject}'.
 STRICT FORMAT RULES — FOLLOW EXACTLY:
 -------------------------------------
 Do NOT use markdown, no **bold**, no *, no numbering lists.
+
+Math MUST be written using ASCII math ONLY:
+x^2 + 3x + 2
+(x + 2)(x + 1)
+sqrt(x), 1/(x-2), x >= 0, x != 3
+
 Return ONLY in this plain text format for every question:
 
 Question X: <question text>
