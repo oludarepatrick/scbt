@@ -77,6 +77,7 @@ Correct Answer: <A/B/C/D>
 
 IMPORTANT:
 - Do NOT add explanations.
+- Ensure to include the instructions needed for question if necessary.
 - Do NOT include any formatting except the structure above.
 - Do NOT repeat the instructions.
 - Every question must start with: Question X:
