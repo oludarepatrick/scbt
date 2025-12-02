@@ -287,7 +287,7 @@ $curriculum->update([
 
 
 
-    public function viewCurriculumQuestions($curriculum_id)
+    /*public function viewCurriculumQuestions($curriculum_id)
     {
         $curriculum = Curriculum::findOrFail($curriculum_id);
 
@@ -296,7 +296,30 @@ $curriculum->update([
                             ->get();
 
         return view('backend.teacher_questions.show', compact('questions', 'curriculum'));
+    }*/
+
+    public function viewCurriculumQuestions($curriculum_id)
+    {
+        $curriculum = Curriculum::findOrFail($curriculum_id);
+
+        $questions = AiQuestion::where('curriculum_id', $curriculum_id)
+                            ->latest()
+                            ->get();
+
+        // Pull class, subject, curriculum_id from the AiQuestion (if available)
+        $first = $questions->first();
+
+        $class = $first->class ?? null;
+        $subject = $first->subject ?? null;
+        $duration = $first->duration ?? null;
+        $curriculum_id = $first->curriculum_id ?? $curriculum_id;
+
+        return view(
+            'backend.teacher_questions.show',
+            compact('questions', 'curriculum', 'class', 'subject', 'curriculum_id', 'duration')
+        );
     }
+
 
     // AI Maths Generated. this method loads the question preview page
     public function viewMathsCurriculumQuestions($curriculum_id)

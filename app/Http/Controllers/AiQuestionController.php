@@ -434,6 +434,46 @@ IMPORTANT:
 
         return view('backend.teacher_questions.preview_questions_maths', compact('questions', 'curriculum_id'));
     }
+    
+    public function saveNewQuestion(Request $request)
+    {
+        $request->validate([
+            'curriculum_id'  => 'required|exists:curriculums,id',
+            'class'          => 'required|string',
+            'subject'        => 'required|string',
+            'duration'       => 'required|integer',
+            'question'       => 'required|string',
+            'options'        => 'required|array',
+            'correct_option' => 'required|string|in:A,B,C,D',
+        ]);
+
+        $userId = auth()->id();
+
+        $options = $request->input('options');
+
+        $question = AiQuestion::create([
+            'user_id'        => $userId,
+            'curriculum_id'  => $request->curriculum_id,
+            'class'          => $request->class,
+            'subject'        => $request->subject,
+            'question_text'  => $request->question,
+            'option_a'       => $options['A'] ?? null,
+            'option_b'       => $options['B'] ?? null,
+            'option_c'       => $options['C'] ?? null,
+            'option_d'       => $options['D'] ?? null,
+            'option_e'       => $options['E'] ?? null,
+            'correct_option' => $request->correct_option,
+            'duration'       => $request->duration,
+            'source'         => 'ai',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'New question added successfully.',
+            'question_id' => $question->id
+        ]);
+    }
+
 
 }
 

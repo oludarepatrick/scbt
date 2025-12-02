@@ -186,6 +186,8 @@ Route::group(['middleware'=>'isAdmin'],function(){
     Route::get('/questions/ai/preview_maths/{curriculum_id}', [AiQuestionController::class, 'preview_maths'])->name('ai.preview_maths');
         //CK Editor Image Upload Route
     Route::post('/ckeditor/upload', [AiQuestionController::class, 'upload'])->name('ckeditor.upload');
+    Route::post('/questions/ai/save-new', [AiQuestionController::class, 'saveNewQuestion'])->name('ai_questions.saveNew');
+
 
 });
 

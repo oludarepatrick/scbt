@@ -38,12 +38,11 @@
 
         <div class="module">
             <div class="module-head">
-                <h3>Preview Add & Edit AI Generated Questions</h3>
+                <h3>Preview & Edit AI Generated Questions5</h3>
             </div>
 
-            
+            <div class="module-body">
                 @if ($questions->count())
-
                 <ol>
                     @foreach ($questions as $q)
                     <li class="mb-4 p-3 border rounded question-block" data-id="{{ $q->id }}">
@@ -144,70 +143,6 @@
                         </form></tr></table>
                     </li>
                     @endforeach
-
-
-                    <div class="p-3 mb-4 border rounded bg-light">
-                        <h4>Add New Question</h4>
-
-                        <form id="newQuestionForm">
-                            @csrf
-
-                            <input type="hidden" name="curriculum_id" value="{{ $curriculum_id }}">
-                            <input type="hidden" name="class" value="{{ $class }}">
-                            <input type="hidden" name="subject" value="{{ $subject }}">
-                            <input type="hidden" name="duration" value="{{ $duration }}">
-
-                            <!-- Toolbar -->
-                            <div class="editor-toolbar mb-2">
-                                <button type="button" data-cmd="bold">Bold</button>
-                                <button type="button" data-cmd="italic">Italic</button>
-                                <button type="button" data-cmd="underline">Underline</button>
-                                <button type="button" data-cmd="justifyLeft">Left</button>
-                                <button type="button" data-cmd="justifyCenter">Center</button>
-                                <button type="button" data-cmd="justifyRight">Right</button>
-                                <button type="button" class="textColorBtn">Text Color</button>
-                                <button type="button" class="bgColorBtn">Highlight</button>
-                                <button type="button" class="insertImageBtn">Image</button>
-                                <button type="button" class="insertMathBtn">Math</button>
-                            </div>
-
-                            <!-- New Editor -->
-                            <div id="newQuestionEditor" class="editor-area" contenteditable="true"
-                                style="min-height:140px; border:1px solid #ccc; padding:10px; border-radius:4px;">
-                            </div>
-                            <div class="form-group mt-2">
-                                <div class="col-md-6">
-                                    <label>A)</label>
-                                    <input type="text" name="option_a" class="form-control">
-                                </div>
-                                <div class="col-md-6">
-                                    <label>B)</label>
-                                    <input type="text" name="option_b" class="form-control">
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                    <label>C)</label>
-                                    <input type="text" name="option_c" class="form-control">
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                    <label>D)</label>
-                                    <input type="text" name="option_d" class="form-control">
-                                </div>
-                            </div>
-
-                            <label class="mt-3"><strong>Correct Option</strong></label>
-                            <select name="correct_option" class="form-control">
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="C">C</option>
-                                <option value="D">D</option>
-                            </select>
-
-                            <button type="button" id="saveNewQuestionBtn" class="btn btn-success mt-3">
-                                Save New Question
-                            </button>
-                        </form>
-                    </div>
-
 
                 </ol>
 
@@ -439,147 +374,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-<!-- Save New Question AJAX Script -->
-<script>
-    document.getElementById('saveNewQuestionBtn').addEventListener('click', function () {
-
-    const form = document.getElementById('newQuestionForm');
-
-    let data = {
-        _token: form.querySelector('input[name="_token"]').value,
-        curriculum_id: form.querySelector('input[name="curriculum_id"]').value,
-        class: form.querySelector('input[name="class"]').value,
-        subject: form.querySelector('input[name="subject"]').value,
-        question: document.getElementById('newQuestionEditor').value,
-        options: {
-            A: form.querySelector('input[name="option_a"]').value,
-            B: form.querySelector('input[name="option_b"]').value,
-            C: form.querySelector('input[name="option_c"]').value,
-            D: form.querySelector('input[name="option_d"]').value,
-            E: form.querySelector('input[name="option_e"]').value,
-        },
-        correct_option: form.querySelector('select[name="correct_option"]').value
-    };
-
-    fetch("{{ route('ai_questions.saveNew') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": data._token,
-            "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.success) {
-            alert("✅ Question added successfully!");
-
-            // Reload page so new question appears
-            location.reload();
-        } else {
-            alert("❌ Error saving question.");
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("❌ Request failed.");
-    });
-
-});
-
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-    // NEW QUESTION TOOLBAR ACTIONS
-    const newEditor = document.getElementById("newQuestionEditor");
-
-    document.querySelectorAll("#newQuestionForm .editor-toolbar button[data-cmd]").forEach(btn => {
-        btn.addEventListener("click", () => {
-            document.execCommand(btn.dataset.cmd, false, null);
-        });
-    });
-
-    document.querySelector("#newQuestionForm .textColorBtn").addEventListener("click", () => {
-        let color = prompt("Enter text color:", "#000000");
-        if (color) document.execCommand("foreColor", false, color);
-    });
-
-    document.querySelector("#newQuestionForm .bgColorBtn").addEventListener("click", () => {
-        let color = prompt("Highlight color:", "yellow");
-        if (color) document.execCommand("backColor", false, color);
-    });
-
-    document.querySelector("#newQuestionForm .insertImageBtn").addEventListener("click", () => {
-        let url = prompt("Image URL:");
-        if (url) document.execCommand("insertImage", false, url);
-    });
-
-    document.querySelector("#newQuestionForm .insertMathBtn").addEventListener("click", () => {
-        let formula = prompt("Enter LaTeX:");
-        if (formula) {
-            let html = `<span class='math'>\\(${formula}\\)</span>`;
-            document.execCommand("insertHTML", false, html);
-            if (window.MathJax) MathJax.typesetPromise();
-        }
-    });
-
-    // SAVE NEW QUESTION
-    document.getElementById("saveNewQuestionBtn").addEventListener("click", () => {
-
-        const form = document.getElementById("newQuestionForm");
-
-        let data = {
-            _token: form.querySelector('input[name="_token"]').value,
-            curriculum_id: form.querySelector('input[name="curriculum_id"]').value,
-            class: form.querySelector('input[name="class"]').value,
-            subject: form.querySelector('input[name="subject"]').value,
-            duration: form.querySelector('input[name="duration"]').value,
-            question: newEditor.innerHTML,
-            options: {
-                A: form.querySelector('input[name="option_a"]').value,
-                B: form.querySelector('input[name="option_b"]').value,
-                C: form.querySelector('input[name="option_c"]').value,
-                D: form.querySelector('input[name="option_d"]').value,
-            },
-            correct_option: form.querySelector('select[name="correct_option"]').value
-        };
-
-        fetch("{{ route('ai_questions.saveNew') }}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": data._token,
-                "X-Requested-With": "XMLHttpRequest"
-            },
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(response => {
-
-            if (response.success) {
-                alert("✅ Question added successfully!");
-
-                // Reset form
-                newEditor.innerHTML = "";
-                form.reset();
-
-                // Append new question without reload
-                location.reload(); // or dynamic insert if you prefer
-            } else {
-                alert("❌ Error saving question.");
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("❌ Request failed.");
-        });
-
-    });
-
-});
-</script>
-
 @endsection
