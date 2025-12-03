@@ -45,6 +45,10 @@
                         'quiz' => $quiz
                     ])
                 </div>
+                    <div id="bottomTimer"
+                        class="text-center mt-4 p-2"
+                        style="font-size: 1.8rem; font-weight: bold; color:#b30000;">
+                    </div>
 
                 {{-- Navigation buttons --}}
                 <div class="d-flex justify-content-between mt-3">
