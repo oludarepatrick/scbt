@@ -69,6 +69,116 @@ public function testOpenRouter()
 
     $curriculum = Curriculum::findOrFail($request->curriculum_id);
 
+    $prompt = "
+Generate exactly {$request->number} multiple-choice objective questions
+based on the {$curriculum->content} Lagos State, Nigeria school curriculum
+for {$curriculum->class} level in the subject '{$curriculum->subject}'.
+
+STRICT FORMAT — FOLLOW EXACTLY:
+
+Question X: <question text>
+A) <option A>
+B) <option B>
+C) <option C>
+D) <option D>
+Correct Answer: <A/B/C/D>
+
+Rules:
+- No markdown
+- No bullets
+- No explanations
+- No missing options
+- Output plain text only
+";
+
+    // 🔥 token sizing based on requested number
+    $maxTokens = min(3500, $request->number * 70);
+
+    $response = Http::withOptions(['verify' => false])
+        ->withHeaders([
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+            'Content-Type'  => 'application/json',
+        ])
+        ->timeout(180)
+        ->post('https://api.openai.com/v1/chat/completions', [
+            'model' => 'gpt-3.5-turbo',
+            'max_tokens' => $maxTokens,
+            'temperature' => 0.2,
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You generate strictly formatted MCQs exactly as instructed.'
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ],
+            ],
+        ]);
+
+    $data = $response->json();
+
+    if ($response->failed()) {
+        \Log::error("OpenAI API error", [
+            'status' => $response->status(),
+            'body'   => $response->body()
+        ]);
+        return back()->with('error', 'AI generation failed. Check logs.');
+    }
+
+    if (!isset($data['choices'][0]['message']['content'])) {
+        return back()->with('error', 'Failed to generate questions.');
+    }
+
+    $content = $data['choices'][0]['message']['content'];
+
+    // 🔥 FIXED REGEX (multi-line safe + full capture)
+    preg_match_all(
+        '/Question\s+\d+:\s*(.+?)\s*A\)\s*(.+?)\s*B\)\s*(.+?)\s*C\)\s*(.+?)\s*D\)\s*(.+?)\s*Correct Answer:\s*([A-D])/s',
+        $content,
+        $matches,
+        PREG_SET_ORDER
+    );
+
+    if (empty($matches)) {
+        \Log::error("No matches found in AI response", ['content' => $content]);
+        return back()->with('error', 'Could not parse questions. Check AI response format.');
+    }
+
+    $saved = [];
+
+    foreach ($matches as $match) {
+        $saved[] = AiQuestion::create([
+            'curriculum_id'  => $request->curriculum_id,
+            'question_text'  => trim($match[1]),
+            'option_a'       => trim($match[2]),
+            'option_b'       => trim($match[3]),
+            'option_c'       => trim($match[4]),
+            'option_d'       => trim($match[5]),
+            'correct_option' => trim($match[6]),
+            'user_id'        => auth()->id(),
+            'source'         => 'ai',
+            'class'          => $curriculum->class,
+            'subject'        => $curriculum->subject,
+            'duration'       => $curriculum->time_left ?? 0,
+        ]);
+    }
+
+    return redirect()->route('ai.preview', ['curriculum_id' => $request->curriculum_id])
+        ->with('success', count($saved) . ' questions generated and saved.');
+}
+
+   /* public function generate(Request $request)
+{
+    ini_set('max_execution_time', 180);
+
+    $request->validate([
+        'curriculum_id' => 'required|exists:curriculums,id',
+        'number' => 'required|integer|min:1|max:150',
+    ]);
+
+    $curriculum = Curriculum::findOrFail($request->curriculum_id);
+
     // 🔥 Better, safer, formatting-stable prompt
     $prompt = "
 Generate exactly {$request->number} multiple-choice objective questions
@@ -165,7 +275,7 @@ IMPORTANT:
 
     return redirect()->route('ai.preview', ['curriculum_id' => $request->curriculum_id])
                     ->with('success', count($saved) . ' questions generated and saved.');
-}
+}*/
 
 
    /* public function generate(Request $request)
