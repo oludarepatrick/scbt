@@ -128,36 +128,6 @@ IMPORTANT:
         return back()->with('error', 'AI generation failed. Check logs.');
     }
 
-// API Request (GPT-3.5 Turbo via OpenRouter)
-   /* $response = Http::withOptions(['verify' => false])
-        ->withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-            'X-Title'       => 'SchoolDrive CBT AI Generator'
-        ])
-        ->timeout(120)
-        ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'openai/gpt-3.5-turbo',
-            'max_tokens' => 20,
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $prompt
-                ],
-            ],
-        ]);
-
-    $data = $response->json();
-
-    // Log errors
-    if ($response->failed()) {
-        \Log::error("OpenRouter error", [
-            'status' => $response->status(),
-            'body'   => $response->body()
-        ]);
-        return back()->with('error', 'AI generation failed. Check logs.');
-    }*/
-
-
     if (!isset($data['choices'][0]['message']['content'])) {
         return back()->with('error', 'Failed to generate questions.');
     }
