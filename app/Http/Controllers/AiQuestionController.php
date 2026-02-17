@@ -107,7 +107,8 @@ IMPORTANT:
         ->timeout(120)
         ->post('https://api.openai.com/v1/chat/completions', [
             'model' => 'gpt-3.5-turbo',
-            'max_tokens' => 20,
+            'max_tokens' => 200,
+            'temperature' => 0.2,
             'messages' => [
                 [
                     'role' => 'user',
