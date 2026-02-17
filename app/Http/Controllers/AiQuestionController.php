@@ -84,7 +84,7 @@ IMPORTANT:
 -------------------------------------
 ";
 
-    // API Request
+    // API Request (GPT-3.5 Turbo via OpenRouter)
     $response = Http::withOptions(['verify' => false])
         ->withHeaders([
             'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
@@ -92,10 +92,13 @@ IMPORTANT:
         ])
         ->timeout(120)
         ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'mistralai/mistral-7b-instruct',
-            'max_tokens' => 2000, // ✅ FIXED: Prevent token-limit credit erro
+            'model' => 'openai/gpt-3.5-turbo',
+            'max_tokens' => 20,
             'messages' => [
-                ['role' => 'user', 'content' => $prompt],
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ],
             ],
         ]);
 
@@ -109,6 +112,7 @@ IMPORTANT:
         ]);
         return back()->with('error', 'AI generation failed. Check logs.');
     }
+
 
     if (!isset($data['choices'][0]['message']['content'])) {
         return back()->with('error', 'Failed to generate questions.');
