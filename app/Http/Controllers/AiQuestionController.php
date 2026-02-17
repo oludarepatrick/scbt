@@ -25,22 +25,34 @@ public function testOpenRouter()
 {
     $prompt = "Generate 3 multiple choice questions on Computer Studies with 4 options A–D and indicate the correct answer.";
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-        'HTTP-Referer' => 'http://127.0.0.1:8000/', // required by OpenRouter
-        'X-Title' => 'SCHOOLDRIVE CBT AI Generator'
-    ])->post('https://openrouter.ai/api/v1/chat/completions', [
-        'model' => 'deepseek/deepseek-r1-0528:free',
-        'messages' => [
-            ['role' => 'user', 'content' => $prompt]
-        ],
-        'temperature' => 0.7,
-    ]);
+    // API Request (Direct OpenAI GPT-3.5 Turbo)
+    $response = Http::withOptions(['verify' => false])
+        ->withHeaders([
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+            'Content-Type'  => 'application/json',
+        ])
+        ->timeout(120)
+        ->post('https://api.openai.com/v1/chat/completions', [
+            'model' => 'gpt-3.5-turbo',
+            'max_tokens' => 20,
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ],
+            ],
+        ]);
 
-    return response()->json([
-        'status' => $response->status(),
-        'body' => $response->json(),
-    ]);
+    $data = $response->json();
+
+    // Log errors
+    if ($response->failed()) {
+        \Log::error("OpenAI API error", [
+            'status' => $response->status(),
+            'body'   => $response->body()
+        ]);
+        return back()->with('error', 'AI generation failed. Check logs.');
+    }
 }
 
 
@@ -410,24 +422,34 @@ IMPORTANT:
                 . "A) ...\nB) ...\nC) ...\nD) ...\n"
                 . "Correct Answer: <Letter>\n\n";
 
-        $response = Http::withOptions(['verify' => false])
+        // API Request (Direct OpenAI GPT-3.5 Turbo)
+    $response = Http::withOptions(['verify' => false])
         ->withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
-            'HTTP-Referer' => 'http://127.0.0.1:8000/',
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+            'Content-Type'  => 'application/json',
         ])
         ->timeout(120)
-        ->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => 'openai/gpt-3.5-turbo',
+        ->post('https://api.openai.com/v1/chat/completions', [
+            'model' => 'gpt-3.5-turbo',
+            'max_tokens' => 20,
             'messages' => [
-                ['role' => 'user', 'content' => $prompt],
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ],
             ],
         ]);
 
-        $data = $response->json();
+    $data = $response->json();
 
-        if (!isset($data['choices'][0]['message']['content'])) {
-            return back()->with('error', 'Failed to generate questions.');
-        }
+    // Log errors
+    if ($response->failed()) {
+        \Log::error("OpenAI API error", [
+            'status' => $response->status(),
+            'body'   => $response->body()
+        ]);
+        return back()->with('error', 'AI generation failed. Check logs.');
+    }
 
         $content = $data['choices'][0]['message']['content'];
 

@@ -13,10 +13,10 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-    'openrouter' => [
+    /*'openrouter' => [
     'api_key' => env('OPENROUTER_API_KEY'),
     'referer' => env('APP_URL', 'https://schooldrive.com.ng'),
-    ],
+    ],*/
 
     'gemini' => [
     'api_key' => env('GEMINI_API_KEY'),
